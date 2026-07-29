@@ -1,0 +1,516 @@
+import {
+  BottomSheetModal,
+  BottomSheetModalProvider,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
+import { useNavigation } from "@react-navigation/native";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
+  FlatList,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useSelector } from "react-redux";
+import api from "../api/api";
+import { getMyPosts, getPost, removePost } from "../api/post";
+import DefaultHeader from "../components/DefaultHeader";
+import MyPostListItem from "../components/MyPostListItem";
+import PostTypeSelector from "../components/PostTypeSelector";
+
+const MyPostListScreen = () => {
+  const myInfo = useSelector((state) => state.my.info);
+  const [posts, setPosts] = useState([]);
+  const [pageNo, setPageNo] = useState(1);
+  const [delVisible, setDelVisible] = useState(false);
+  const [delVisible2, setChangeStateVisible] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [postType, setPostType] = useState("ALL"); // ALL FIND LOST
+  const [state, setState] = useState(""); // "" UNCOMPLETED COMPLETED POLICE
+  const [hasNext, setHasNext] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  const bottomSheetModalRef = useRef(null);
+  const navigation = useNavigation();
+
+  const handleModalPress = useCallback((postId) => {
+    setSelectedPostId(postId);
+    bottomSheetModalRef.current?.present();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedPostId) return;
+
+    getPost(setSelectedPost, selectedPostId);
+  }, [selectedPostId]);
+
+  const handleSheetChanges = useCallback(
+    (index) => {
+      console.log("bottomSheetChanges", index);
+      if (index === -1) {
+        getMyPosts(setPosts, 1); // 1페이지부터 다시 불러오기
+        setPageNo(1);
+      }
+    },
+    [setPosts]
+  );
+
+  const closeModal = () => setDelVisible(false);
+  const closeModal2 = () => setChangeStateVisible(false);
+
+  useEffect(() => {
+    if (pageNo > 1 && !hasNext) return;
+    (async () => {
+      setLoading(true);
+      try {
+        await getMyPosts(setPosts, pageNo);
+      } catch (e) {
+        console.error("게시글 목록 조회 오류:", e.message);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [pageNo]);
+
+  const onEndReached = () => {
+    if (loading || !hasNext) return; // 중복/무한루프 방지
+    setPageNo((p) => p + 1);
+  };
+
+  const handleState = (v) => {
+    if (state == "") {
+      setState(v);
+    } else {
+      setState(state === v ? "" : v);
+    }
+  };
+
+  const modifyPost = async () => {
+    if (state === "COMPLETED") {
+      return;
+    }
+    try {
+      const res = await api.patch(`/posts/${selectedPostId}`, {
+        status: "COMPLETED",
+      });
+
+      getMyPosts(setPosts, 1); // 1페이지부터 다시 불러오기
+      setPageNo(1);
+      console.log("게시글 상태 변경 성공:", res.data);
+    } catch (e) {
+      console.error("에러 발생: ", e);
+      alert("게시글 상태 변경 실패");
+    }
+  };
+
+  const filteredPosts = useMemo(() => {
+    return posts
+      .filter((p) => (postType === "ALL" ? true : p.type === postType))
+      .filter((p) => (state ? p.status === state : true));
+  }, [posts, postType, state]);
+
+  return (
+    <GestureHandlerRootView>
+      <BottomSheetModalProvider>
+        <SafeAreaView
+          style={{ flex: 1, backgroundColor: "white" }}
+          edge={["top"]}
+        >
+          <DefaultHeader />
+          <View style={styles.listContainer}>
+            <PostTypeSelector postType={postType} setPostType={setPostType} />
+
+            <View style={[styles.filterBtnContent]}>
+              <Pressable
+                onPress={() => handleState("UNCOMPLETED")}
+                style={[
+                  styles.filterBtn,
+                  {
+                    borderColor:
+                      state === "UNCOMPLETED" ? "darkGray" : "#a8a8a8",
+                    backgroundColor:
+                      state === "UNCOMPLETED" ? "#d9d9d9" : "rgba(0,0,0,0)",
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.BtnText,
+                    {
+                      color: state === "UNCOMPLETED" ? "darkGray" : "#a8a8a8",
+                    },
+                  ]}
+                >
+                  미완료
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => handleState("COMPLETED")}
+                style={[
+                  styles.filterBtn,
+                  {
+                    borderColor: state === "COMPLETED" ? "darkGray" : "#a8a8a8",
+                    backgroundColor:
+                      state === "COMPLETED" ? "#d9d9d9" : "white",
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.BtnText,
+                    {
+                      color: state === "COMPLETED" ? "darkGray" : "#a8a8a8",
+                    },
+                  ]}
+                >
+                  완료
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => handleState("POLICE")}
+                style={[
+                  styles.filterBtn,
+                  {
+                    borderColor: state === "POLICE" ? "darkGray" : "#a8a8a8",
+                    backgroundColor: state === "POLICE" ? "#d9d9d9" : "white",
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.BtnText,
+                    {
+                      color: state === "POLICE" ? "darkGray" : "#a8a8a8",
+                    },
+                  ]}
+                >
+                  인계됨
+                </Text>
+              </Pressable>
+            </View>
+
+            <FlatList
+              data={filteredPosts}
+              keyExtractor={(item) => item.postId.toString()}
+              renderItem={({ item }) => (
+                <MyPostListItem
+                  post={item}
+                  handleModalPress={() => handleModalPress(item.postId)}
+                />
+              )}
+              showsVerticalScrollIndicator={false}
+              onEndReached={onEndReached}
+              onEndReachedThreshold={0.3}
+              style={{ flex: 1 }}
+              contentContainerStyle={{ padding: 2 }}
+            />
+
+            <BottomSheetModal
+              ref={bottomSheetModalRef}
+              onChange={handleSheetChanges}
+              enableDynamicSizing
+              backgroundStyle={{ backgroundColor: "#DADEE7" }}
+              style={styles.bottomSheetModal}
+            >
+              <BottomSheetView style={styles.contentContainer}>
+                <SafeAreaView edges={["bottom"]}>
+                  {selectedPost?.status !== "COMPLETED" &&
+                    selectedPost?.status !== "POLICE" && (
+                      <Pressable
+                        style={({ pressed }) => [
+                          styles.bottomModalBtn,
+                          { backgroundColor: pressed ? "#f2f6ff" : "#DADEE7" },
+                        ]}
+                        onPress={() =>
+                          navigation.navigate("EditPostScreen", {
+                            postId: selectedPostId,
+                          })
+                        }
+                      >
+                        <Text style={styles.bottomModalBtnText}>
+                          게시글 수정
+                        </Text>
+                      </Pressable>
+                    )}
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.bottomModalBtn,
+                      { backgroundColor: pressed ? "#f2f6ff" : "#DADEE7" },
+                    ]}
+                    onPress={() => setDelVisible(true)}
+                  >
+                    <Text style={styles.bottomModalBtnText}>삭제하기</Text>
+                  </Pressable>
+
+                  {selectedPost?.status !== "COMPLETED" &&
+                    selectedPost?.status !== "POLICE" && (
+                      <Pressable
+                        style={({ pressed }) => [
+                          styles.bottomModalBtn,
+                          { backgroundColor: pressed ? "#f2f6ff" : "#DADEE7" },
+                        ]}
+                        onPress={() => setChangeStateVisible(true)}
+                      >
+                        <Text style={styles.bottomModalBtnText}>상태 변경</Text>
+                      </Pressable>
+                    )}
+                </SafeAreaView>
+              </BottomSheetView>
+            </BottomSheetModal>
+
+            <Modal
+              visible={delVisible}
+              transparent
+              animationType="fade"
+              onRequestClose={() => setDelVisible(false)}
+            >
+              <TouchableWithoutFeedback onPress={closeModal}>
+                <View style={styles.overlay}>
+                  <TouchableWithoutFeedback>
+                    <View style={styles.modalBox}>
+                      <Text style={styles.modalTitleText}>
+                        게시글을 삭제하시겠어요?
+                      </Text>
+                      <Text style={styles.modalContentText}>
+                        삭제한 게시글은 복구할 수 없습니다.
+                      </Text>
+                      <View style={styles.modalBtnContainer}>
+                        <Pressable
+                          onPress={closeModal}
+                          style={styles.modalCancelBtn}
+                        >
+                          <Text style={styles.modalBtnText}>취소</Text>
+                        </Pressable>
+                        <Pressable
+                          onPress={async () => {
+                            await removePost(selectedPostId);
+                            closeModal();
+                            setPosts((prev) =>
+                              prev.filter((p) => p.postId !== selectedPostId)
+                            );
+                          }}
+                          style={styles.modalSubmitBtn}
+                        >
+                          <Text style={styles.modalBtnWhiteText}>삭제</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+                  </TouchableWithoutFeedback>
+                </View>
+              </TouchableWithoutFeedback>
+            </Modal>
+
+            <Modal
+              visible={delVisible2}
+              transparent
+              animationType="fade"
+              onRequestClose={() => setChangeStateVisible(false)}
+            >
+              <TouchableWithoutFeedback onPress={closeModal2}>
+                <View style={styles.overlay}>
+                  <TouchableWithoutFeedback>
+                    <View style={styles.modalBox}>
+                      <Text style={styles.modalTitleText}>
+                        게시글을 완료 처리하시겠어요?
+                      </Text>
+                      <Text style={styles.modalContentText}>
+                        완료된 게시글은 이후에{"\n"}수정하거나 되돌릴 수
+                        없습니다.
+                      </Text>
+                      <View style={styles.modalBtnContainer}>
+                        <Pressable
+                          onPress={closeModal2}
+                          style={styles.modalCancelBtn}
+                        >
+                          <Text style={styles.modalBtnText}>취소</Text>
+                        </Pressable>
+
+                        <Pressable
+                          onPress={async () => {
+                            console.log("상태 완료로 변경");
+                            await modifyPost();
+                            closeModal2();
+                          }}
+                          style={styles.modalSubmitBtn}
+                        >
+                          <Text style={styles.modalBtnWhiteText}>변경</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+                  </TouchableWithoutFeedback>
+                </View>
+              </TouchableWithoutFeedback>
+            </Modal>
+          </View>
+        </SafeAreaView>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
+  );
+};
+
+export default MyPostListScreen;
+
+const styles = StyleSheet.create({
+  listContainer: {
+    paddingHorizontal: 15,
+    flex: 1,
+  },
+  filterResetBtn: {
+    flexDirection: "row",
+    alignSelf: "flex-start",
+    alignItems: "center",
+    padding: 4,
+  },
+  resetImg: {
+    width: 15,
+    height: 15,
+  },
+  filterDownBtn: {
+    borderWidth: 1,
+    borderRadius: 16,
+    borderColor: "#dbdbdb",
+    flexDirection: "row",
+    alignSelf: "flex-start",
+    alignItems: "center",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    paddingLeft: 13,
+    marginRight: 8,
+  },
+  filterBtn: {
+    borderWidth: 1,
+    borderRadius: 16,
+    borderColor: "#dbdbdb",
+    flexDirection: "row",
+    alignSelf: "flex-start",
+    alignItems: "center",
+    paddingVertical: 6,
+    paddingHorizontal: 13,
+    marginRight: 8,
+  },
+  filterDownImg: {
+    width: 20,
+    height: 26,
+    marginLeft: 4,
+  },
+  filterBtnContainer: {
+    paddingVertical: 8,
+    flexGrow: 0,
+  },
+  filterBtnContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  bottomSheetModal: {
+    borderRadius: 25,
+  },
+  contentContainer: {
+    paddingTop: 10,
+  },
+  bottomModalContentTitle: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#d4d4d4",
+    alignItems: "center",
+    padding: 10,
+  },
+  bottomModalContentTitleText: {
+    fontSize: 18,
+    fontWeight: 600,
+  },
+  bottomModalResetBtn: {
+    borderRadius: 10,
+    backgroundColor: "#e9e9e9",
+    padding: 10,
+    flex: 2,
+    alignItems: "center",
+  },
+  bottomModalSubmitBtn: {
+    borderRadius: 10,
+    backgroundColor: "#2165A6",
+    padding: 10,
+    flex: 8,
+    alignItems: "center",
+  },
+  bottomModalBtnContainer: {
+    flexDirection: "row",
+    gap: 14,
+  },
+  submitBtnText: {
+    color: "white",
+  },
+  locationSelectMask: {
+    width: 380,
+    height: 230,
+    marginVertical: 15,
+  },
+  locationMapImg: {
+    width: "100%",
+    height: "100%",
+  },
+  bottomModalBtn: {
+    alignItems: "center",
+    padding: 15,
+  },
+  bottomModalBtnText: {
+    fontSize: 18,
+    fontWeight: 600,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalBox: {
+    backgroundColor: "white",
+    paddingVertical: 25,
+    paddingHorizontal: 45,
+    borderRadius: 25,
+  },
+  modalCancelBtn: {
+    borderRadius: 10,
+    backgroundColor: "#e9e9e9",
+    padding: 8,
+    alignItems: "center",
+    flex: 1,
+  },
+  modalSubmitBtn: {
+    borderRadius: 10,
+    backgroundColor: "#2165A6",
+    padding: 8,
+    alignItems: "center",
+    flex: 1,
+  },
+  modalBtnText: {
+    fontSize: 16,
+  },
+  modalBtnWhiteText: {
+    fontSize: 16,
+    color: "white",
+  },
+  modalBtnContainer: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  modalTitleText: {
+    fontSize: 18,
+    fontWeight: 600,
+  },
+  modalContentText: {
+    paddingVertical: 23,
+    fontSize: 13,
+  },
+});

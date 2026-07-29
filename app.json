@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "LOST INHA",
+    "slug": "LOST INHA",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "plugins": [
+      "expo-notifications",
+      "expo-secure-store"
+    ],
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "useNextNotificationsApi": true,
+      "notification": {
+        "icon": "./assets/icon.png",
+        "color": "#ffffff"
+      },
+      "android": {
+        "permissions": ["NOTIFICATIONS"]
+      },
+      "package": "com.anonymous.next_campus"
+    },
+    "web": {
+      "favicon": "./assets/icon.png"
+    }
+  }
+}

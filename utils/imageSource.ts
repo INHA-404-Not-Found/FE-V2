@@ -1,7 +1,7 @@
 const DEFAULT_IMAGE = require("../assets/defaultPostImg.png");
 
 // 도메인은 .env 혹은 상수로 관리
-const BASE_URL = "https://lost-inha.kro.kr";
+const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 /** 단일/배열/객체/로컬 모두 안전하게 Image source로 변환 */
 export function toImageSource(input: unknown) {
@@ -33,6 +33,11 @@ export function toImageSource(input: unknown) {
 export function toImageSources(list: unknown): Array<{ uri: string } | number> {
   if (!Array.isArray(list)) return [toImageSource(list)];
   return list.map((v) => toImageSource(v));
+}
+
+/** 절대 URL 문자열이 필요한 곳(모달 등)에서 쓰는 버전 */
+export function toImageUri(p: string) {
+  return absolutize(p);
 }
 
 /** 상대경로를 절대 URL로, 공백/한글 파일명은 인코딩 */

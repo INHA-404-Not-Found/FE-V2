@@ -2,7 +2,7 @@ import axios from "axios";
 import { TokenStore } from "../TokenStore.js";
 import { tokenStorage } from "../tokenStorage.js";
 
-export const BASE_URL = "https://lost-inha.kro.kr";
+export const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 const api = axios.create({
   baseURL: `${BASE_URL}`,
@@ -93,7 +93,7 @@ api.interceptors.response.use(
     } finally {
       isRefreshing = false;
     }
-  }
+  },
 );
 
 export default api;

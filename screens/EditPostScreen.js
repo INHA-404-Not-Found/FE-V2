@@ -50,7 +50,7 @@ const EditPostScreen = ({ route }) => {
     categoryList.map((c) => ({
       label: c.name,
       value: c.id,
-    }))
+    })),
   );
   const [categories, setCategories] = useState([]); // 선택된 카테고리 값들 String List
 
@@ -60,7 +60,7 @@ const EditPostScreen = ({ route }) => {
     locationList.map((l) => ({
       label: l.name,
       value: l.id,
-    }))
+    })),
   );
   const [locationId, setLocationId] = useState(null);
   const [locationDetail, setLocationDetail] = useState("");
@@ -72,7 +72,7 @@ const EditPostScreen = ({ route }) => {
         categoryList.map((c) => ({
           label: c.name,
           value: c.id,
-        }))
+        })),
       );
     }
   }, [categoryList]);
@@ -83,7 +83,7 @@ const EditPostScreen = ({ route }) => {
         locationList.map((l) => ({
           label: l.name,
           value: l.id,
-        }))
+        })),
       );
     }
   }, [locationList]);
@@ -111,8 +111,8 @@ const EditPostScreen = ({ route }) => {
         post.imagePath.map((p, idx) =>
           typeof p === "string"
             ? { uri: p, fileName: `image_${idx}.jpg`, mimeType: "image/jpeg" }
-            : p
-        )
+            : p,
+        ),
       );
     } else if (typeof post.imagePath === "string") {
       setFile([
@@ -130,7 +130,7 @@ const EditPostScreen = ({ route }) => {
       setCategories(
         categoryList
           .filter((c) => post.categories.includes(c.name))
-          .map((c) => c.id)
+          .map((c) => c.id),
       );
     }
     if (post.locationName) {
@@ -454,7 +454,7 @@ const EditPostScreen = ({ route }) => {
                   : post.imagePath.map((img) => (
                       <Image
                         key={img}
-                        source={{ uri: `https://lost-inha.kro.kr${img}` }}
+                        source={toImageSource(img)}
                         style={{
                           width: 80,
                           height: 80,

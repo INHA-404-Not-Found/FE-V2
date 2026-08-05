@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View, Modal, Dimensions } from "react-native";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  Modal,
+  Dimensions,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getPost } from "../api/post";
 import DefaultHeader from "../components/DefaultHeader";
 import StatusLabel from "../components/StatusLabel";
 import { DateFormat } from "../utils/DateFormat";
+import { toImageUri } from "../utils/imageSource";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -40,7 +50,7 @@ const PostScreen = ({ route }) => {
           >
             {Array.isArray(post.imagePath) && post.imagePath.length > 0 ? (
               post.imagePath.map((img, index) => {
-                const fullUri = `https://lost-inha.kro.kr${img}`;
+                const fullUri = toImageUri(img);
                 return (
                   <Pressable
                     key={index}
@@ -78,7 +88,10 @@ const PostScreen = ({ route }) => {
         <Modal visible={modalVisible} transparent={true}>
           <View style={styles.modalBackground}>
             {/* 닫기 버튼 */}
-            <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
+            <Pressable
+              style={styles.closeButton}
+              onPress={() => setModalVisible(false)}
+            >
               <Image
                 style={styles.closeButtonImage}
                 source={require("../assets/close.png")}
@@ -105,12 +118,15 @@ const PostScreen = ({ route }) => {
               </View>
               <StatusLabel status={post.status} />
             </View>
-            <Text style={styles.categoryText}>{DateFormat(post.createdAt)}</Text>
+            <Text style={styles.categoryText}>
+              {DateFormat(post.createdAt)}
+            </Text>
 
             <View style={styles.infoList}>
               {post.type === "FIND" && post.locationName && (
                 <Text style={styles.infoItem}>
-                  {"\u2022"} 습득 장소: {post.locationName} {post.locationDetail}
+                  {"\u2022"} 습득 장소: {post.locationName}{" "}
+                  {post.locationDetail}
                 </Text>
               )}
               {post.type === "FIND" && post.storedLocation && (
@@ -120,7 +136,8 @@ const PostScreen = ({ route }) => {
               )}
               {post.type !== "FIND" && post.locationName && (
                 <Text style={styles.infoItem}>
-                  {"\u2022"} 분실 장소: {post.locationName} {post.locationDetail}
+                  {"\u2022"} 분실 장소: {post.locationName}{" "}
+                  {post.locationDetail}
                 </Text>
               )}
             </View>

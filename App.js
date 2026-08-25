@@ -7,6 +7,8 @@ import React, { useEffect } from "react";
 import { StatusBar, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import api from "./api/api";
+import { TokenStore } from "./TokenStore";
+import { tokenStorage } from "./tokenStorage";
 import { setCategory } from "./Redux/slices/categorySlice";
 import { setLocation } from "./Redux/slices/locationSlice";
 import AddLostPostScreen from "./screens/AddLostPostScreen";
@@ -207,7 +209,7 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: "#ffffff" }}>
       <Provider store={store}>
-        <StatusBar style="dark-content" backgroundColor="#ffffff" />
+        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
         <AppContent />
       </Provider>
     </GestureHandlerRootView>

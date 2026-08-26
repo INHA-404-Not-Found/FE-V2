@@ -19,7 +19,8 @@
       "bundleIdentifier": "kr.ac.inha.lostinha"
     },
     "plugins": [
-      "expo-secure-store"
+      "expo-secure-store",
+      "@react-native-firebase/app"
     ],
     "android": {
       "adaptiveIcon": {
@@ -29,7 +30,8 @@
       "package": "kr.ac.inha.lostinha",
       "permissions": [
         "POST_NOTIFICATIONS"
-      ]
+      ],
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/icon.png"

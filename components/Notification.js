@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View, Image, Pressable } from "react-native";
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
-import { getItem } from "expo-secure-store";
 import api from "../api/api";
 
 const Notification = ({ notification }) => {

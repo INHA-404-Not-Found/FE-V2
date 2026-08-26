@@ -208,31 +208,59 @@ route (c)에서는 대부분 변경이 **불필요**하다:
 
 ---
 
-# 진행 상황 (2026-08-25 중단 지점)
+# 진행 상황 (2026-08-26 갱신)
 
-## 완료 — 커밋 `ac83ea2`, 브랜치 `feat/bare-rn-fcm-migration`
-계획의 **1~3단계**까지 끝. `npm install`도 완료(exit 0).
+## 완료
 
+### 1~3단계 — 커밋 `ac83ea2`, 브랜치 `feat/bare-rn-fcm-migration`
 - App.js 부트 버그(import 누락) + StatusBar prop 수정
 - app.json 권한 오타 수정, 패키지명 `kr.ac.inha.lostinha` 확정, adaptiveIcon 정정
 - package.json에 gesture-handler / reanimated 명시
 - .gitignore에서 /android, /ios 해제
 
-## 다음 할 일 — 4단계 `expo prebuild`부터
+### FCM 코드 구현 (2026-08-26)
+- **의존성 정리** — 미사용 `firebase`(웹 SDK), `expo-device`, `expo-notifications`,
+  `expo-status-bar` 제거. `@react-native-firebase/app`, `@react-native-firebase/messaging`
+  (둘 다 23.8.8 — RN 0.81 / Expo SDK 54와 같은 세대), `@notifee/react-native` 9.1.8,
+  `react-native-worklets` 0.5.2 추가.
+  - RNFB 최신은 26.x지만 RN 0.82+ 세대라 **일부러 23 라인으로 고정**했다.
+  - `react-native-worklets`는 Reanimated 4의 필수 peer인데 선언이 없었다
+    (gesture-handler / reanimated와 같은 케이스).
+- **`index.js` 신설** + `package.json`의 `main`을 `index.js`로 변경.
+  RNFB는 `setBackgroundMessageHandler`를 컴포넌트 밖 진입점 최상단에서 등록하도록 요구한다.
+- **`notifications.js` 신설** — 채널 생성, 권한 요청, 토큰 발급/전송/갱신,
+  foreground 표시, 알림 탭 처리.
+- **`navigationRef.js` 신설** — 알림 탭 시 컴포넌트 밖에서 화면 이동.
+  콜드 스타트로 NavigationContainer가 아직 없으면 보관했다가 onReady에 실행한다.
+- **`App.js`** — 주석 처리돼 있던 expo-notifications 블록 2개를 RNFB 배선으로 교체.
+  부트 순서: 로그인 토큰 복원 → 채널 생성 → 권한 요청 → FCM 토큰 등록 → 초기 알림 처리.
+- **`hooks/useAuth.js`** — 로그인 성공 직후에도 FCM 토큰을 등록한다
+  (앱 시작 시엔 아직 로그인 전일 수 있어서 `/fcm/token`이 401로 떨어진다).
+- **`components/Notification.js`** — 호출된 적 없는 `expo-secure-store` import 제거.
+- **`app.json`** — `plugins`에 `@react-native-firebase/app` 추가,
+  `android.googleServicesFile` 지정.
+  notifee는 config plugin이 없고 autolinking으로 붙으므로 `plugins`에 넣지 않는다.
 
-1. `npm install @react-native-firebase/app @react-native-firebase/messaging`
-2. `app.json`의 `plugins`에 `"@react-native-firebase/app"` 추가
-   (지금은 패키지 미설치 상태라 일부러 빼둠 — 넣은 채로 두면 expo start가 실패함)
-3. `npx expo prebuild --clean`
-4. `android/gradle.properties`에 `newArchEnabled=true` 확인 **(필수)**
+## 다음 할 일
+
+1. **Firebase 콘솔에서 Android 앱 등록** — 패키지명 `kr.ac.inha.lostinha` 와 **정확히** 일치해야 한다.
+   `google-services.json` 을 받아 **프로젝트 루트**에 둔다 (`app.json`의
+   `android.googleServicesFile`이 이 경로를 보고 prebuild가 `android/app/`으로 복사한다).
+   - 이 파일이 없으면 `npx expo prebuild` 가 실패한다. **여기가 지금 막힌 지점이다.**
+2. `npx expo prebuild --clean` — `android/` 생성.
+3. `android/gradle.properties` 에 `newArchEnabled=true` 확인 **(필수)**
    — Reanimated 4는 New Architecture 필수. false면 지도 화면에서 즉시 크래시.
-5. `npx react-native run-android` 로 **푸시 없이** 기존 기능 먼저 검증
-   ← 전환이 안전했는지 판단하는 체크포인트
-6. Firebase 콘솔에서 Android 앱 등록 (패키지명 `kr.ac.inha.lostinha` 정확히 일치)
-   → `google-services.json` 을 `android/app/` 에 배치
-7. 푸시 코드 구현 (위 "FCM 푸시 구현" 절 참고)
-   — **알림 채널 생성 빠뜨리지 말 것.** Android 8+ 는 채널 없으면 아무것도 안 보이고
-     에러도 안 남.
+4. `npx react-native run-android` 로 빌드 + 기존 기능 회귀 테스트.
+5. Firebase 콘솔 → Cloud Messaging 테스트 메시지로 foreground / background / 종료 상태 3가지 확인.
+
+## 빌드 환경 주의
+
+- **이 WSL 환경에는 JDK도 Android SDK도 없다.** (`java` 명령 없음, `ANDROID_HOME` 없음)
+  `react-native run-android` 는 Android Studio가 있는 Windows 쪽에서 돌려야 한다.
+- **npm이 /mnt/c 에서 자주 깨진다.** 9p 파일시스템이라 기존 node_modules를 갱신하는
+  작업(`npm install <pkg>`, `npm uninstall`)이 EPERM / ENOTEMPTY로 실패한다.
+  실제로 두 번 실패했다. **해결법: `rm -rf node_modules` 후 `npm install` 한 번에 새로 깔기.**
+  가능하면 Windows 쪽에서 npm을 돌리는 게 낫다.
 
 ## 주의사항 (WSL 환경 이슈)
 
@@ -250,8 +278,11 @@ route (c)에서는 대부분 변경이 **불필요**하다:
 - **백엔드 발송 방식** — `/fcm/token`에 저장된 토큰을 Expo Push API로 보내는지
   FCM Admin SDK로 보내는지. Expo Push API면 백엔드도 FCM HTTP v1으로 바꿔야 하고,
   안 바꾸면 프론트가 완벽해도 알림이 영원히 안 온다.
+- **푸시 payload의 data 필드 이름** — `notifications.js`의 `openNotificationTarget()`은
+  `data.postId`, 없으면 `data.link`(앱 내 알림 목록과 같은 방식)를 기대한다.
+  백엔드가 실제로 보내는 키에 맞춰 확인할 것.
 - **백엔드 주소** — `.env`는 `https://be-v2.onrender.com`, `setupProxy.js`는
   `https://lost-inha.kro.kr`. 어느 쪽이 현재 서버인지 확인.
   (`setupProxy.js`는 CRA 잔재로 RN에서 안 쓰이므로 삭제 대상)
-- **미사용 의존성** — `firebase`(웹 SDK), `expo-device`, `expo-notifications`,
-  `expo-status-bar` 는 소스에서 import된 적이 없다. RNFB 도입 후 정리.
+- **`google-services.json` 커밋 여부** — Android에서는 보통 같이 커밋한다(비밀키 아님).
+  팀 정책에 따라 결정.

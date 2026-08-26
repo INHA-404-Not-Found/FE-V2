@@ -15,26 +15,23 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "kr.ac.inha.lostinha"
     },
     "plugins": [
-      "expo-notifications",
-      "expo-secure-store"
+      "expo-secure-store",
+      "@react-native-firebase/app"
     ],
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png",
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "useNextNotificationsApi": true,
-      "notification": {
-        "icon": "./assets/icon.png",
-        "color": "#ffffff"
-      },
-      "android": {
-        "permissions": ["NOTIFICATIONS"]
-      },
-      "package": "com.anonymous.next_campus"
+      "package": "kr.ac.inha.lostinha",
+      "permissions": [
+        "POST_NOTIFICATIONS"
+      ],
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/icon.png"

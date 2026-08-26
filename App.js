@@ -7,6 +7,16 @@ import React, { useEffect } from "react";
 import { StatusBar, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import api from "./api/api";
+import { flushPendingNavigation, navigationRef } from "./navigationRef";
+import {
+  ensureNotificationChannel,
+  handleInitialNotification,
+  registerPushToken,
+  requestPushPermission,
+  subscribeToPushEvents,
+} from "./notifications";
+import { TokenStore } from "./TokenStore";
+import { tokenStorage } from "./tokenStorage";
 import { setCategory } from "./Redux/slices/categorySlice";
 import { setLocation } from "./Redux/slices/locationSlice";
 import AddLostPostScreen from "./screens/AddLostPostScreen";
@@ -19,78 +29,7 @@ import NotificationListScreen from "./screens/NotificationListScreen";
 import PostListScreen from "./screens/PostListScreen";
 import PostScreen from "./screens/PostScreen";
 import UserScreen from "./screens/UserScreen";
-/*
-// 앱이 꺼져있을때 알림이 도착하면(Background 알림) 어떻게 처리할 지 설정
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldPlaySound: true, // 소리 재생 여부
-    shouldShowAlert: true, // 알림 도착 시 사용자에게 표시할지 여부
-    shouldSetBadge: true, // 뱃지 아이콘 표시 여부 (iOS)
-  }),
-});
 
-// 푸시 알림 권한 요청, 토큰 받기
-async function registerForPushNotificationAsync() {
-  if (Platform.OS === "android") {
-    Notifications.setNotificationChannelAsync("default", {
-      name: "default",
-      importance: Notifications.AndroidImportance.MAX, // 알림 중요도 설정
-      vibrationPattern: [0, 250, 250, 250], // 진동 패턴
-      lightColor: "#FF231F7C", // 알림 LED 색상
-    });
-  }
-
-  if (Device.isDevice) {
-    // 현재 알림 권한 상태 확인
-    const { status: existingStatus } =
-      await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-
-    // 권한이 없다면 알림 권한 요청
-    if (existingStatus !== "granted") {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-
-    // 사용자가 알림 권한 거부 선택시 함수 종료
-    if (finalStatus !== "granted") {
-      handleRegistrationError("푸쉬 알림 권한이 거부되었습니다.");
-      return;
-    }
-
-    // Expo 푸시 토큰 받기
-    try {
-      const pushTokenString = (
-        await Notifications.getExpoPushTokenAsync({
-          projectId: "com.anonymous.next_campus",
-        })
-      ).data;
-      console.log("Expo 푸시 토큰 발급 완료: ", pushTokenString);
-      return pushTokenString;
-    } catch (e) {
-      handleRegistrationError(e);
-    }
-  } else {
-    handleRegistrationError("푸시 알림을 받기 위해서 실제 기기가 필요합니다.");
-  }
-}
-
-// Expo 푸시 토큰 서버에 전송하기
-const sendTokenToServer = async (token) => {
-  try {
-    const res = await api.post("/fcm/token", {
-      token,
-    });
-    console.log("Expo 푸시 토큰 저장 성공: ", res.data);
-  } catch (error) {
-    console.error(
-      "Expo 푸시 토큰 저장 실패:",
-      error?.response?.status,
-      error?.message
-    );
-  }
-};
-*/
 const Stack = createNativeStackNavigator();
 
 function AppContent() {
@@ -124,7 +63,7 @@ function AppContent() {
   }, [dispatch]);
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef} onReady={flushPendingNavigation}>
       <Stack.Navigator
         initialRouteName="MainScreen"
         screenOptions={{
@@ -160,54 +99,45 @@ function AppContent() {
 }
 
 export default function App() {
-  /*
-  const [notification, setNotification] = useState(null);
-  const notificationListener = useRef(null);
-  const responseListener = useRef(null);
-
-  useEffect(() => {
-    // 1. 알림 권한 요청 -> 허용시 토큰 발급, 서버에 저장
-    registerForPushNotificationAsync()
-      .then((token) => sendTokenToServer(token))
-      .catch((error) => console.log(error));
-
-    // 2. 알림 수신 리스너 등록 (앱 실행 중 알림 도착시)
-    notificationListener.current =
-      Notifications.addNotificationReceivedListener((notification) => {
-        console.log("알림 수신 (foreground): ", notification);
-        setNotification(notification);
-      });
-
-    // 3. 알림 반응 리스너 등록 (사용자가 알림을 탭 할 경우)
-    responseListener.current =
-      Notifications.addNotificationResponseReceivedListener((response) => {
-        console.log("알림 반응: ", response);
-        // response.notification.request.content.data
-        // 알림에 포함된 데이터에 접근하고 특정 화면으로 이동하는 등의 로직 처리 추가하기
-      });
-
-    // 컴포넌트 unmount 시 구독 객체에서 remove() 호출
-    return () => {
-      notificationListener.current?.remove();
-      responseListener.current?.remove();
-    };
-  }, []);
-  */
   useEffect(() => {
     const boot = async () => {
+      // 1. 저장된 로그인 토큰 복원 (푸시 토큰 전송이 401로 떨어지지 않도록 먼저 한다)
       const access = await tokenStorage.getAccessTStorage();
       if (access) {
         TokenStore.setToken(access);
         console.log("기존 토큰 복원 완료:", access);
       }
+
+      // 2. Android 알림 채널 생성 (채널이 없으면 알림이 조용히 표시되지 않는다)
+      await ensureNotificationChannel();
+
+      // 3. 알림 권한 요청 -> 허용 시 FCM 토큰 발급 후 서버에 저장
+      const granted = await requestPushPermission();
+      if (granted) {
+        if (access) {
+          await registerPushToken();
+        } else {
+          console.log("로그인 전이라 FCM 토큰 등록은 로그인 후에 진행한다.");
+        }
+      } else {
+        console.log("푸시 알림 권한이 거부되었습니다.");
+      }
+
+      // 4. 알림 탭으로 앱이 실행된 경우 해당 화면으로 이동
+      await handleInitialNotification();
     };
-    boot();
+
+    boot().catch((err) => console.error("앱 초기화 실패:", err));
+
+    // 5. 앱 실행 중 알림 수신/탭/토큰 갱신 리스너 등록
+    const unsubscribe = subscribeToPushEvents();
+    return unsubscribe;
   }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: "#ffffff" }}>
       <Provider store={store}>
-        <StatusBar style="dark-content" backgroundColor="#ffffff" />
+        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
         <AppContent />
       </Provider>
     </GestureHandlerRootView>

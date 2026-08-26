@@ -2,6 +2,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMyInfoApi, loginApi, logoutApi } from "../api/auth";
 import { clearMy, setMy } from "../Redux/slices/mySlice";
+import { registerPushToken } from "../notifications";
 import { tokenStorage } from "../tokenStorage";
 import { TokenStore } from "../TokenStore";
 
@@ -26,6 +27,9 @@ export function useAuth() {
       const meRes = await fetchMyInfoApi();
       dispatch(setMy(meRes.data));
       console.log("프로필 로딩 성공:", meRes.data);
+
+      // 로그인한 사용자 기준으로 FCM 토큰을 서버에 등록한다.
+      await registerPushToken();
       // ✅ try 안으로 이동
       navigation.reset({
         index: 0,

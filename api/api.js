@@ -61,8 +61,7 @@ api.interceptors.response.use(
       const refreshToken = await tokenStorage.getRefreshTStorage();
       if (!refreshToken) throw new Error("NO_REFRESH");
 
-      // ⚠️ studentId가 이 스코프에 없다면 제거하거나, 토큰에서 디코드해서 채우세요.
-      // const studentId = decoded?.studentId ?? decoded?.sub;
+      const studentId = await tokenStorage.getStudentId();
       const { data } = await api.post("/auth/refresh", {
         studentId,
         refreshToken,

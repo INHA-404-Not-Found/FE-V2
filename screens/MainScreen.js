@@ -17,6 +17,7 @@ import {
 } from "react-native";
 
 import { StatusBar } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import BottomBar from "../components/BottomBar";
 import CategoryList from "../components/CategoryList";
@@ -26,6 +27,7 @@ import PostTypeSelector from "../components/PostTypeSelector";
 import { setKeyword } from "../Redux/slices/keywordSlice";
 const MainScreen = () => {
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const dispatch = useDispatch();
   const keyword = useSelector((s) => s.search.keyword);
   const [selectType, setSelectType] = useState("category"); // category location status
@@ -304,7 +306,8 @@ const MainScreen = () => {
           backdropComponent={renderBackdrop}
         >
           <BottomSheetView style={styles.contentContainer}>
-            <SafeAreaView edges={["bottom"]}>
+            {/* react-native의 SafeAreaView는 Android에서 inset을 적용하지 않아 직접 계산한다 */}
+            <View style={{ paddingBottom: insets.bottom }}>
               <Pressable
                 onPress={() => navigation.navigate("AddPostScreen")}
                 style={({ pressed }) => [
@@ -328,7 +331,7 @@ const MainScreen = () => {
                   분실 게시글 등록
                 </Text>
               </Pressable>
-            </SafeAreaView>
+            </View>
           </BottomSheetView>
         </BottomSheetModal>
       </SafeAreaView>

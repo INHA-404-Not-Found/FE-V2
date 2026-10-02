@@ -147,6 +147,39 @@ const vbH = ORIGINAL_HEIGHT / FIXED_SCALE;
 
 const SPEED = 3; // 원하는 배율 (1 = 기본속도, 2 = 두배 빠름)
 
+// "M x y L x y H x V y Z" 형태의 path를 꼭짓점 배열로 변환
+const parsePolygon = (d) => {
+  const points = [];
+  let x = 0;
+  let y = 0;
+  for (const [, cmd, args] of d.matchAll(/([MLHVZ])([^MLHVZ]*)/g)) {
+    const n = args.trim().split(/[\s,]+/).filter(Boolean).map(Number);
+    if (cmd === "M" || cmd === "L") [x, y] = n;
+    else if (cmd === "H") x = n[0];
+    else if (cmd === "V") y = n[0];
+    else continue;
+    points.push([x, y]);
+  }
+  return points;
+};
+
+const isInside = (px, py, poly) => {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i];
+    const [xj, yj] = poly[j];
+    if (yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
+};
+
+const ZONE_POLYGONS = CAMPUS_ZONES.filter((z) => z.d).map((z) => ({
+  zone: z,
+  poly: parsePolygon(z.d),
+}));
+
 const LocationViewBox = ({ selected, setSelected }) => {
   // viewBox 좌상단을 React state로
   const [vb, setVb] = React.useState({ x: 0, y: 0 });
@@ -180,15 +213,32 @@ const LocationViewBox = ({ selected, setSelected }) => {
     setSelected(z.id === selected?.id ? null : z);
   };
 
+  // SVG 요소의 onPress는 GestureDetector 안에서 전달되지 않을 수 있어,
+  // 탭 좌표를 지도 좌표로 바꿔 어느 구역인지 직접 찾는다.
+  const [svgWidth, setSvgWidth] = React.useState(0);
+  const handleTap = (x, y) => {
+    if (!svgWidth) return;
+    const ratio = vbW / svgWidth;
+    const mx = vb.x + x * ratio;
+    const my = vb.y + y * ratio;
+    const hit = ZONE_POLYGONS.find(({ poly }) => isInside(mx, my, poly));
+    if (hit) handlePress(hit.zone);
+  };
+
+  const tap = Gesture.Tap().onEnd((e, success) => {
+    if (success) runOnJS(handleTap)(e.x, e.y);
+  });
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={styles.container}>
-        <GestureDetector gesture={pan}>
+        <GestureDetector gesture={Gesture.Simultaneous(pan, tap)}>
           <Svg
             // 고정 2배 확대: vbW/vbH로 구현
             viewBox={`${vb.x} ${vb.y} ${vbW} ${vbH}`}
             width="100%"
             style={{ aspectRatio: ORIGINAL_WIDTH / ORIGINAL_HEIGHT }}
+            onLayout={(e) => setSvgWidth(e.nativeEvent.layout.width)}
           >
             <SvgImage
               href={MAP_IMAGE}
@@ -200,7 +250,7 @@ const LocationViewBox = ({ selected, setSelected }) => {
             />
             {CAMPUS_ZONES.map((z) =>
               z.d ? (
-                <G key={z.id} onPress={() => handlePress(z)}>
+                <G key={z.id}>
                   <Path
                     d={z.d}
                     fill={

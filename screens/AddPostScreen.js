@@ -246,6 +246,9 @@ const AddPostScreen = () => {
             </View>
             <View style={styles.dropdownContainer}>
               <DropDownPicker
+                listMode="SCROLLVIEW"
+                scrollViewProps={{ nestedScrollEnabled: true }}
+                dropDownContainerStyle={{ maxHeight: 220 }}
                 open={open}
                 value={categories}
                 items={items}
@@ -270,6 +273,9 @@ const AddPostScreen = () => {
             </View>
             <View style={styles.dropdownContainer}>
               <DropDownPicker
+                listMode="SCROLLVIEW"
+                scrollViewProps={{ nestedScrollEnabled: true }}
+                dropDownContainerStyle={{ maxHeight: 220 }}
                 open={locationOpen}
                 value={locationId}
                 items={locationItems}

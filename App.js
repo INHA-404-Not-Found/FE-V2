@@ -17,8 +17,10 @@ import {
 } from "./notifications";
 import { TokenStore } from "./TokenStore";
 import { tokenStorage } from "./tokenStorage";
+import { fetchMyInfoApi } from "./api/auth";
 import { setCategory } from "./Redux/slices/categorySlice";
 import { setLocation } from "./Redux/slices/locationSlice";
+import { setMy } from "./Redux/slices/mySlice";
 import AddLostPostScreen from "./screens/AddLostPostScreen";
 import AddPostScreen from "./screens/AddPostScreen";
 import EditPostScreen from "./screens/EditPostScreen";
@@ -106,6 +108,13 @@ export default function App() {
       if (access) {
         TokenStore.setToken(access);
         console.log("기존 토큰 복원 완료:", access);
+        // 내 정보(Redux)는 메모리에만 있어서 앱을 다시 켜면 비어 있으므로 다시 불러온다
+        try {
+          const me = await fetchMyInfoApi();
+          store.dispatch(setMy(me.data));
+        } catch (e) {
+          console.log("프로필 복원 실패:", e?.response?.status, e?.message);
+        }
       }
 
       // 2. Android 알림 채널 생성 (채널이 없으면 알림이 조용히 표시되지 않는다)

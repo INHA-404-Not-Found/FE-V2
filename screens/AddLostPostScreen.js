@@ -204,6 +204,9 @@ const AddLostPostScreen = () => {
             </View>
             <View style={[styles.dropdownContainer, { zIndex: 3000 }]}>
               <DropDownPicker
+                listMode="SCROLLVIEW"
+                scrollViewProps={{ nestedScrollEnabled: true }}
+                dropDownContainerStyle={{ maxHeight: 220 }}
                 open={open}
                 value={categories}
                 items={items}

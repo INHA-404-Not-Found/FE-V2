@@ -9,7 +9,6 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   Image,
   Pressable,
-  SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
@@ -17,7 +16,10 @@ import {
 } from "react-native";
 
 import { StatusBar } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import BottomBar from "../components/BottomBar";
 import CategoryList from "../components/CategoryList";
@@ -78,7 +80,7 @@ const MainScreen = () => {
       <StatusBar style="dark-content" backgroundColor="#ffffff" />
       <SafeAreaView
         style={{ flex: 1, paddingBottom: 0, backgroundColor: "#ffffff" }}
-        edge={["top", "bottom"]}
+        edges={["top"]}
       >
         <DefaultHeader />
 

@@ -28,7 +28,11 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    // BE는 모든 응답을 CommonResponse({ success, code, message, data })로 감싼다 → data만 꺼내 호출부는 기존처럼 res.data를 쓴다.
+    if (typeof res.data?.success === "boolean") res.data = res.data.data;
+    return res;
+  },
   async (error) => {
     const original = error?.config;
 
@@ -36,7 +40,10 @@ api.interceptors.response.use(
     if (!original || original._retry) return Promise.reject(error);
 
     // 🔒 refresh 루프 방지
-    if (original.url?.includes("/auth/refresh")) {
+    if (
+      original.url?.includes("/auth/refresh") ||
+      original.url?.includes("/auth/login")
+    ) {
       return Promise.reject(error);
     }
 

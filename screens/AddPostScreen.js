@@ -240,9 +240,7 @@ const AddPostScreen = () => {
           </View>
           <View style={styles.flexRow}>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={[styles.textLabel, { alignItems: "center" }]}>
-                물품 카테고리
-              </Text>
+              <Text style={styles.textLabel}>물품 카테고리</Text>
               <Text style={styles.star}> *</Text>
             </View>
             <View style={styles.dropdownContainer}>

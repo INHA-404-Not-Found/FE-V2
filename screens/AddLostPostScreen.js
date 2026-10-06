@@ -203,7 +203,7 @@ const AddLostPostScreen = () => {
               <Text style={styles.textLabel}>물품 카테고리</Text>
               <Text style={styles.star}> *</Text>
             </View>
-            <View style={[styles.dropdownContainer, { zIndex: 3000 }]}>
+            <View style={styles.dropdownContainer}>
               <DropDownPicker
                 listMode="SCROLLVIEW"
                 scrollViewProps={{ nestedScrollEnabled: true }}
@@ -220,6 +220,8 @@ const AddLostPostScreen = () => {
                 placeholder="카테고리를 선택하세요"
                 mode="BADGE"
                 style={styles.dropdownPicker}
+                zIndex={3000}
+                zIndexInverse={1000}
               />
             </View>
           </View>

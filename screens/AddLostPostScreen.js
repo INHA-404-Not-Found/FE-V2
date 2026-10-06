@@ -18,6 +18,7 @@ import { useSelector } from "react-redux";
 import api from "../api/api";
 import DefaultHeader from "../components/DefaultHeader";
 import { TokenStore } from "../TokenStore";
+import PhotoPickerField from "../components/PhotoPickerField";
 
 const AddLostPostScreen = () => {
   const navigation = useNavigation();
@@ -241,52 +242,17 @@ const AddLostPostScreen = () => {
               ]}
             />
           </View>
-          <View style={[styles.flexRow, { alignItems: "center" }]}>
-            <Text style={styles.textLabel}>사진 등록</Text>
-            <Pressable
+          <View style={styles.flexRow}>
+            <Text style={[styles.textLabel, { marginTop: 13 }]}>사진 등록</Text>
+            <PhotoPickerField
+              images={file}
+              max={2}
               onPress={pickImages}
-              style={({ pressed }) => [
-                styles.imageUploadBtn,
-                {
-                  marginLeft: 50,
-                  backgroundColor: pressed ? "#BEDEF3" : "#fff", // 👈 눌렀을 때 색 변경
-                  transform: [{ scale: pressed ? 0.98 : 1 }], // 👈 살짝 눌린 느낌 추가 (선택)
-                },
-              ]}
-            >
-              <Image
-                source={require("../assets/uploadImage2.png")}
-                style={{
-                  width: 15,
-                  height: 15,
-                  marginRight: 4,
-                }}
-              />
-              <Text style={styles.imageUploadText}>upload</Text>
-            </Pressable>
+              onRemove={(uri) =>
+                setFile((prev) => prev.filter((f) => f.uri !== uri))
+              }
+            />
           </View>
-
-          {file.length > 0 && (
-            <ScrollView
-              horizontal
-              nestedScrollEnabled={true}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingVertical: 8 }}
-            >
-              {file.map((img) => (
-                <Image
-                  key={img.uri}
-                  source={{ uri: img.uri }}
-                  style={{
-                    width: 80,
-                    height: 80,
-                    borderRadius: 8,
-                    marginRight: 8,
-                  }}
-                />
-              ))}
-            </ScrollView>
-          )}
         </View>
       </ScrollView>
       <View style={styles.buttonView}>
@@ -380,24 +346,6 @@ const styles = StyleSheet.create({
   btnText2: {
     color: "#215294",
     fontSize: 16,
-    fontWeight: "500",
-  },
-  imageUploadBtn: {
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    width: 244,
-    height: 40,
-    borderWidth: 2,
-    borderColor: "#215294",
-    borderRadius: 8,
-    backgroundColor: "#fff",
-    paddingHorizontal: 12,
-    marginVertical: 10,
-  },
-  imageUploadText: {
-    color: "#215294",
-    fontSize: 13,
     fontWeight: "500",
   },
 });

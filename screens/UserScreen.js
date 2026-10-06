@@ -62,46 +62,53 @@ const UserScreen = () => {
       <DefaultHeader />
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.sectionTitle}>계정</Text>
-        <SettingRow label="이메일" value={myInfo?.email ?? "-"} />
-        <SettingRow label="학번" value={myInfo?.studentId ?? "-"} />
-        <SettingRow
-          label="이메일 변경"
-          onPress={() => alert("이메일 변경은 준비 중입니다.")}
-        />
+        <View style={styles.card}>
+          <SettingRow label="이메일" value={myInfo?.email ?? "-"} />
+          <SettingRow label="학번" value={myInfo?.studentId ?? "-"} />
+          <SettingRow
+            label="이메일 변경"
+            onPress={() => alert("이메일 변경은 준비 중입니다.")}
+          />
+        </View>
 
         <Text style={styles.sectionTitle}>알림</Text>
-        <SettingRow
-          label="푸시 알림"
-          right={
-            <Switch
-              trackColor={{ false: "#d9d9d9", true: "#215294" }}
-              thumbColor="#ffffff"
-              value={pushOn}
-              onValueChange={togglePush}
-              disabled={!myInfo}
-            />
-          }
-        />
+        <View style={styles.card}>
+          <SettingRow
+            label="푸시 알림"
+            right={
+              <Switch
+                trackColor={{ false: "#d9d9d9", true: "#215294" }}
+                thumbColor="#ffffff"
+                value={pushOn}
+                onValueChange={togglePush}
+                disabled={!myInfo}
+              />
+            }
+          />
+        </View>
 
         <Text style={styles.sectionTitle}>앱 정보</Text>
-        <SettingRow label="버전" value={appConfig.expo.version} />
+        <View style={styles.card}>
+          <SettingRow label="버전" value={appConfig.expo.version} />
+        </View>
 
-        <View style={styles.divider} />
-        {myInfo ? (
-          <Pressable
-            onPress={() => logout()}
-            style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-          >
-            <Text style={styles.logoutText}>로그아웃</Text>
-          </Pressable>
-        ) : (
-          <Pressable
-            onPress={() => navigation.navigate("LoginScreen")}
-            style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-          >
-            <Text style={styles.loginText}>로그인</Text>
-          </Pressable>
-        )}
+        <View style={[styles.card, { marginTop: 24 }]}>
+          {myInfo ? (
+            <Pressable
+              onPress={() => logout()}
+              style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+            >
+              <Text style={styles.logoutText}>로그아웃</Text>
+            </Pressable>
+          ) : (
+            <Pressable
+              onPress={() => navigation.navigate("LoginScreen")}
+              style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+            >
+              <Text style={styles.loginText}>로그인</Text>
+            </Pressable>
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -112,24 +119,36 @@ export default UserScreen;
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F6F7FA",
   },
   container: {
     paddingBottom: 32,
   },
   sectionTitle: {
     marginTop: 20,
-    marginBottom: 4,
-    paddingHorizontal: 20,
+    marginBottom: 8,
+    paddingHorizontal: 22,
     fontSize: 13,
     fontWeight: "600",
     color: "#a8a8a8",
+  },
+  // 게시글 상세(PostScreen)의 contentCard와 같은 카드 스타일
+  card: {
+    marginHorizontal: 10,
+    borderRadius: 16,
+    backgroundColor: "#fff",
+    overflow: "hidden",
+    elevation: 1,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 3,
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
     minHeight: 52,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   rowPressed: {
     backgroundColor: "#f2f6ff",
@@ -148,11 +167,6 @@ const styles = StyleSheet.create({
     height: 16,
     tintColor: "#a8a8a8",
     transform: [{ rotate: "180deg" }],
-  },
-  divider: {
-    height: 1,
-    marginTop: 20,
-    backgroundColor: "#f0f0f0",
   },
   logoutText: {
     fontSize: 15,

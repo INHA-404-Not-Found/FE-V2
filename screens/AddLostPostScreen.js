@@ -107,7 +107,7 @@ const AddLostPostScreen = () => {
       type: "LOST",
       categories,
     });
-    const newPostId = res.data.postId;
+    const newPostId = res.data; // BE는 CommonResponse<Long>으로 id만 내려준다
     setPostId(newPostId); // state도 갱신
     return newPostId; // 호출자에게 즉시 id를 반환
   };

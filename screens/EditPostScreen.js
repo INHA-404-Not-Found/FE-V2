@@ -2,7 +2,6 @@ import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
 import {
-  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -16,7 +15,8 @@ import * as ImageManipulator from "expo-image-manipulator";
 import DropDownPicker from "react-native-dropdown-picker";
 import { useSelector } from "react-redux";
 import DefaultHeader from "../components/DefaultHeader";
-import { toImageSource } from "../utils/imageSource";
+import { toImageSource, toImageUri } from "../utils/imageSource";
+import PhotoPickerField from "../components/PhotoPickerField";
 
 import { mime } from "react-native-mime-types";
 import api from "../api/api";
@@ -412,65 +412,33 @@ const EditPostScreen = ({ route }) => {
               />
             </View>
 
-            <View style={[styles.flexRow, { alignItems: "center" }]}>
-              <Text style={styles.textLabel}>사진 등록</Text>
-              <Pressable
+            <View style={styles.flexRow}>
+              <Text style={[styles.textLabel, { marginTop: 13 }]}>
+                사진 등록
+              </Text>
+              {/* 새로 고른 사진만 삭제 가능: 이미지 수정 API가 전체 교체 방식이라 기존 사진 일부만 지울 수 없음 */}
+              <PhotoPickerField
+                images={
+                  changeImage
+                    ? file
+                    : [].concat(post?.imagePath ?? []).map((p) => ({
+                        uri: toImageUri(p),
+                      }))
+                }
+                max={2}
                 onPress={pickImages}
-                style={({ pressed }) => [
-                  styles.imageUploadBtn,
-                  {
-                    marginLeft: 50,
-                    backgroundColor: pressed ? "#BEDEF3" : "#fff",
-                    transform: [{ scale: pressed ? 0.98 : 1 }],
-                  },
-                ]}
-              >
-                <Image
-                  source={require("../assets/uploadImage2.png")}
-                  style={{
-                    width: 15,
-                    height: 15,
-                    marginRight: 4,
-                  }}
-                />
-                <Text style={styles.imageUploadText}>upload</Text>
-              </Pressable>
+                onRemove={
+                  changeImage
+                    ? (uri) => {
+                        const next = file.filter((f) => f.uri !== uri);
+                        setFile(next);
+                        // 새 사진을 모두 지우면 기존 사진 유지로 되돌린다
+                        if (next.length === 0) setChangeImage(false);
+                      }
+                    : undefined
+                }
+              />
             </View>
-
-            {(file.length > 0 || post?.imagePath?.length > 0) && (
-              <ScrollView
-                horizontal
-                nestedScrollEnabled={true}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingVertical: 8 }}
-              >
-                {changeImage
-                  ? file.map((img, index) => (
-                      <Image
-                        key={index}
-                        source={{ uri: img.uri }}
-                        style={{
-                          width: 80,
-                          height: 80,
-                          borderRadius: 8,
-                          marginRight: 8,
-                        }}
-                      />
-                    ))
-                  : post.imagePath.map((img) => (
-                      <Image
-                        key={img}
-                        source={toImageSource(img)}
-                        style={{
-                          width: 80,
-                          height: 80,
-                          borderRadius: 8,
-                          marginRight: 8,
-                        }}
-                      />
-                    ))}
-              </ScrollView>
-            )}
           </View>
         </ScrollView>
       )}
@@ -563,24 +531,5 @@ const styles = StyleSheet.create({
   dropdownPicker: {
     width: 244,
     borderColor: "#d9d9d9",
-  },
-  imageUploadBtn: {
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    width: 244,
-    height: 40,
-    paddingVertical: 0,
-    fontSize: 12.5,
-    borderWidth: 2,
-    backgroundColor: "#fff",
-    borderColor: "#215294",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    marginVertical: 15,
-  },
-  imageUploadText: {
-    color: "#215294",
-    fontSize: 13,
   },
 });

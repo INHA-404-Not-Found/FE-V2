@@ -25,16 +25,18 @@ const PhotoPickerField = ({ images, max, onPress, onRemove }) => (
     {images.map((img) => (
       <View key={img.uri}>
         <Image source={{ uri: img.uri }} style={styles.tile} />
-        <Pressable
-          onPress={() => onRemove(img.uri)}
-          hitSlop={8}
-          style={styles.removeBtn}
-        >
-          <Image
-            source={require("../assets/close.png")}
-            style={styles.removeIcon}
-          />
-        </Pressable>
+        {onRemove && (
+          <Pressable
+            onPress={() => onRemove(img.uri)}
+            hitSlop={8}
+            style={styles.removeBtn}
+          >
+            <Image
+              source={require("../assets/close.png")}
+              style={styles.removeIcon}
+            />
+          </Pressable>
+        )}
       </View>
     ))}
   </View>

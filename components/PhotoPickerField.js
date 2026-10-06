@@ -46,10 +46,8 @@ export default PhotoPickerField;
 
 const styles = StyleSheet.create({
   row: {
-    width: 244,
     flexDirection: "row",
     gap: 8,
-    marginVertical: 10,
   },
   tile: {
     width: TILE_SIZE,

@@ -1,20 +1,18 @@
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { ScrollView, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import * as ImageManipulator from "expo-image-manipulator";
 import DropDownPicker from "react-native-dropdown-picker";
 import { useSelector } from "react-redux";
 import DefaultHeader from "../components/DefaultHeader";
+import FormBottomBar from "../components/FormBottomBar";
+import FormField, {
+  formStyles,
+  PLACEHOLDER_COLOR,
+} from "../components/FormField";
 import { toImageSource, toImageUri } from "../utils/imageSource";
 import PhotoPickerField from "../components/PhotoPickerField";
 
@@ -301,121 +299,93 @@ const EditPostScreen = ({ route }) => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }} edges={["top"]}>
       <DefaultHeader />
-      {post && (
-        <ScrollView style={styles.scrollView}>
-          <View style={styles.content}>
-            <View style={styles.flexRow}>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text style={[styles.textLabel, { marginTop: 13 }]}>제목</Text>
-                <Text style={[styles.star, { marginTop: 13 }]}> *</Text>
-              </View>
+      {post ? (
+        <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled">
+          <View style={formStyles.content}>
+            <FormField label="제목" required>
               <TextInput
                 value={title}
                 onChangeText={(text) => setTitle(text)}
-                style={styles.inputText}
+                placeholder="예) 검은색 반지갑"
+                placeholderTextColor={PLACEHOLDER_COLOR}
+                style={formStyles.input}
               />
-            </View>
-
-            <View style={styles.flexRow}>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text style={[styles.textLabel, { alignItems: "center" }]}>
-                  물품 카테고리
-                </Text>
-                <Text style={styles.star}> *</Text>
-              </View>
-              <View style={styles.dropdownContainer}>
-                <DropDownPicker
-                  listMode="SCROLLVIEW"
-                  scrollViewProps={{ nestedScrollEnabled: true }}
-                  dropDownContainerStyle={{ maxHeight: 220 }}
-                  open={open}
-                  value={categories}
-                  items={items}
-                  setItems={setItems}
-                  setOpen={setOpen}
-                  setValue={setCategories}
-                  multiple={true}
-                  min={0}
-                  max={5}
-                  placeholder="카테고리를 선택하세요"
-                  mode="BADGE"
-                  style={styles.dropdownPicker}
-                  zIndex={3000}
-                  zIndexInverse={1000}
+            </FormField>
+            <FormField label="카테고리" required>
+              <DropDownPicker
+                listMode="SCROLLVIEW"
+                scrollViewProps={{ nestedScrollEnabled: true }}
+                dropDownContainerStyle={formStyles.dropdownList}
+                open={open}
+                value={categories}
+                items={items}
+                setItems={setItems}
+                setOpen={setOpen}
+                setValue={setCategories}
+                multiple={true}
+                min={0}
+                max={5}
+                placeholder="카테고리를 선택하세요"
+                placeholderStyle={formStyles.dropdownPlaceholder}
+                mode="BADGE"
+                style={formStyles.dropdown}
+                zIndex={3000}
+                zIndexInverse={1000}
+              />
+            </FormField>
+            <FormField
+              label={post.type === "FIND" ? "습득 장소" : "분실 장소"}
+              required={post.type === "FIND"}
+            >
+              <DropDownPicker
+                listMode="SCROLLVIEW"
+                scrollViewProps={{ nestedScrollEnabled: true }}
+                dropDownContainerStyle={formStyles.dropdownList}
+                open={locationOpen}
+                value={locationId}
+                items={locationItems}
+                setItems={setLocationItems}
+                setOpen={setLocationOpen}
+                setValue={setLocationId}
+                multiple={false}
+                placeholder="장소를 선택하세요"
+                placeholderStyle={formStyles.dropdownPlaceholder}
+                mode="BADGE"
+                style={formStyles.dropdown}
+                zIndex={2000}
+                zIndexInverse={900}
+              />
+              <TextInput
+                placeholder="(선택) 세부 장소 예) 3층 복도"
+                placeholderTextColor={PLACEHOLDER_COLOR}
+                style={[formStyles.input, formStyles.subInput]}
+                value={locationDetail}
+                onChangeText={(text) => setLocationDetail(text)}
+              />
+            </FormField>
+            {post.type === "FIND" && (
+              <FormField label="보관 위치">
+                <TextInput
+                  value={storedLocation}
+                  onChangeText={(text) => setStoredLocation(text)}
+                  placeholder="예) 학생지원팀, 본인 보관"
+                  placeholderTextColor={PLACEHOLDER_COLOR}
+                  style={formStyles.input}
                 />
-              </View>
-            </View>
-
-            {post.type === "FIND" ? (
-              <>
-                <View style={styles.flexRow}>
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Text style={styles.textLabel}>습득 장소</Text>
-                    <Text style={styles.star}> *</Text>
-                  </View>
-                  <View style={styles.dropdownContainer}>
-                    <DropDownPicker
-                      listMode="SCROLLVIEW"
-                      scrollViewProps={{ nestedScrollEnabled: true }}
-                      dropDownContainerStyle={{ maxHeight: 220 }}
-                      open={locationOpen}
-                      value={locationId}
-                      items={locationItems}
-                      setItems={setLocationItems}
-                      setOpen={setLocationOpen}
-                      setValue={setLocationId}
-                      multiple={false}
-                      placeholder="장소를 선택하세요"
-                      mode="BADGE"
-                      style={styles.dropdownPicker}
-                      zIndex={2000}
-                      zIndexInverse={900}
-                    />
-                    <TextInput
-                      placeholder="(선택) 세부 장소를 입력하세요"
-                      style={styles.inputText}
-                      value={locationDetail}
-                      onChangeText={(text) => setLocationDetail(text)}
-                    ></TextInput>
-                  </View>
-                </View>
-                <View style={styles.flexRow}>
-                  <Text style={[styles.textLabel, { marginTop: 13 }]}>
-                    보관 위치
-                  </Text>
-                  <TextInput
-                    value={storedLocation}
-                    onChangeText={(text) => setStoredLocation(text)}
-                    style={styles.inputText}
-                  />
-                </View>
-              </>
-            ) : (
-              <></>
+              </FormField>
             )}
-            <View style={styles.flexRow}>
-              <Text style={[styles.textLabel, { marginTop: 13 }]}>내용</Text>
+            <FormField label="내용">
               <TextInput
                 value={content}
                 numberOfLines={5}
                 multiline={true}
                 onChangeText={(text) => setContent(text)}
-                style={[
-                  styles.inputText,
-                  {
-                    minHeight: 5 * 24,
-                    height: "auto",
-                    paddingTop: 10,
-                    textAlignVertical: "top",
-                  },
-                ]}
+                placeholder="물품의 특징이나 상황을 적어 주세요"
+                placeholderTextColor={PLACEHOLDER_COLOR}
+                style={[formStyles.input, formStyles.textArea]}
               />
-            </View>
-
-            <View style={styles.flexRow}>
-              <Text style={[styles.textLabel, { marginTop: 13 }]}>
-                사진 등록
-              </Text>
+            </FormField>
+            <FormField label="사진">
               {/* 새로 고른 사진만 삭제 가능: 이미지 수정 API가 전체 교체 방식이라 기존 사진 일부만 지울 수 없음 */}
               <PhotoPickerField
                 images={
@@ -438,98 +408,20 @@ const EditPostScreen = ({ route }) => {
                     : undefined
                 }
               />
-            </View>
+            </FormField>
           </View>
         </ScrollView>
+      ) : (
+        <View style={{ flex: 1 }} />
       )}
 
-      <View style={styles.buttonView}>
-        <Pressable style={styles.btn2} onPress={() => navigation.goBack()}>
-          <Text style={styles.btnText2}>취소하기</Text>
-        </Pressable>
-        <Pressable onPress={handleUpload} style={styles.btn}>
-          <Text style={styles.btnText}>등록하기</Text>
-        </Pressable>
-      </View>
+      <FormBottomBar
+        onCancel={() => navigation.goBack()}
+        onSubmit={handleUpload}
+        submitLabel="수정하기"
+      />
     </SafeAreaView>
   );
 };
 
 export default EditPostScreen;
-
-const styles = StyleSheet.create({
-  scrollView: {
-    marginBottom: 70,
-  },
-  content: {
-    marginHorizontal: 30,
-    marginVertical: 15,
-    flexDirection: "column",
-  },
-  flexRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 10,
-    alignItems: "flex-start",
-  },
-  textLabel: {
-    fontSize: 13.5,
-  },
-  star: {
-    color: "#fe2828ff",
-    fontSize: 13.5,
-  },
-  inputText: {
-    width: 244,
-    height: 40,
-    paddingVertical: 0,
-    lineHeight: 15,
-    fontSize: 12.5,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    marginVertical: 15,
-  },
-  buttonView: {
-    flexDirection: "row",
-    justifyContent: "center", // 가운데 정렬
-    alignItems: "center",
-    marginHorizontal: 30,
-    position: "absolute",
-    bottom: 60,
-  },
-  btn: {
-    backgroundColor: "#215294",
-    width: 160,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: "center",
-    marginHorizontal: 10, // 버튼 사이 간격
-  },
-  btnText: {
-    color: "white",
-    fontSize: 16,
-  },
-  btn2: {
-    backgroundColor: "white",
-    borderColor: "#215294",
-    borderWidth: 2,
-    width: 160,
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: "center",
-    marginHorizontal: 10, // 버튼 사이 간격
-  },
-  btnText2: {
-    color: "#215294",
-    fontSize: 16,
-  },
-  dropdownPicker: {
-    width: 244,
-    borderColor: "#d9d9d9",
-  },
-});

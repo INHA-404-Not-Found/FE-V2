@@ -1,16 +1,26 @@
 import { useNavigation } from "@react-navigation/native";
-import React from "react";
+import React, { useRef } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { DateFormat } from "../utils/DateFormat";
 import { toImageSource } from "../utils/imageSource";
 
-const MyPostListItem = ({ post, handleModalPress }) => {
+const MyPostListItem = ({ post, handleMenuPress, menuOpen }) => {
   const navigation = useNavigation();
   const imageSource = toImageSource(post?.imagePath);
+  const menuBtnRef = useRef(null);
+
+  // ... 버튼의 화면상 위치를 측정해서 그 아래에 메뉴를 띄울 수 있도록 전달
+  const onMenuPress = () => {
+    menuBtnRef.current?.measureInWindow((x, y, width, height) => {
+      handleMenuPress({ x, y, width, height });
+    });
+  };
 
   return (
     <Pressable onPress={() => navigation.navigate("PostScreen", post.postId)}>
-      <View style={styles.postContainer}>
+      <View
+        style={[styles.postContainer, menuOpen && styles.postContainerActive]}
+      >
         <View style={styles.postImgWrapper}>
           <Image source={imageSource} style={styles.postImg}></Image>
         </View>
@@ -61,7 +71,12 @@ const MyPostListItem = ({ post, handleModalPress }) => {
             {post.content}
           </Text>
         </View>
-        <Pressable onPress={handleModalPress} style={styles.postMenuBtn}>
+        <Pressable
+          ref={menuBtnRef}
+          onPress={onMenuPress}
+          style={styles.postMenuBtn}
+          hitSlop={8}
+        >
           <Image
             source={require("../assets/postMenu.png")}
             style={styles.postMenuImg}
@@ -80,6 +95,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#EEEAEA",
     paddingVertical: 13,
+  },
+  postContainerActive: {
+    backgroundColor: "#F2F6FF",
   },
   postImgWrapper: {
     width: 90,

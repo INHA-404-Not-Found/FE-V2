@@ -268,7 +268,7 @@ const MainScreen = () => {
                   <Text style={styles.tagText}>{selectedCate.name}</Text>
                 </View>
               ) : (
-                <Text style={styles.noneText}></Text>
+                null
               )}
               {selectedLocation ? (
                 <View key={selectedLocation.id} style={styles.tag}>
@@ -279,7 +279,7 @@ const MainScreen = () => {
                   <Text style={styles.tagText}>{selectedLocation.name}</Text>
                 </View>
               ) : (
-                <Text style={styles.noneText}></Text>
+                null
               )}
               {state ? (
                 <View key={state} style={styles.tag}>
@@ -290,7 +290,7 @@ const MainScreen = () => {
                   <Text style={styles.tagText}>{state}</Text>
                 </View>
               ) : (
-                <Text style={styles.noneText}></Text>
+                null
               )}
             </View>
           </View>
@@ -460,8 +460,5 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 13,
     marginRight: 8,
-  },
-  noneText: {
-    display: "none",
   },
 });

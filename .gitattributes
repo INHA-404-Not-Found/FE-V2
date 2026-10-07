@@ -1,0 +1,17 @@
+# 줄바꿈을 LF로 통일 (Windows/WSL 혼용 시 CRLF 변경이 잡히는 것 방지)
+* text=auto eol=lf
+
+# Windows 배치 파일은 CRLF 유지
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 바이너리
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.jar binary
+*.keystore binary
+*.ttf binary
+*.otf binary

@@ -1,10 +1,13 @@
 import { useNavigation } from "@react-navigation/native";
 import React from "react";
 import { Image, Pressable, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TokenStore } from "../TokenStore";
 
 const BottomBar = ({ handleModalPress }) => {
   const navigation = useNavigation();
+  // edge-to-edge라 앱이 시스템 내비게이션 바 뒤까지 그려지므로 그만큼 띄워 준다
+  const insets = useSafeAreaInsets();
 
   // 로그인 여부 확인
   const checkLogin = async (onSuccess) => {
@@ -19,7 +22,7 @@ const BottomBar = ({ handleModalPress }) => {
   };
 
   return (
-    <View style={styles.bar}>
+    <View style={[styles.bar, { paddingBottom: insets.bottom }]}>
       {/* 내가 올린 글 */}
       <Pressable
         onPress={() =>

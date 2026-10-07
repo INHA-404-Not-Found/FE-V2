@@ -1,9 +1,8 @@
-import axios from "axios";
-import api, { BASE_URL } from "./api.js";
+import api from "./api.js";
 
 // ✅ 순수 HTTP API 래퍼
 export const loginApi = (studentId, password) =>
-  axios.post(`${BASE_URL}/auth/login`, {
+  api.post("/auth/login", {
     studentId,
     password,
     isWeb: false,

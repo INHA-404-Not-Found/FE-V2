@@ -18,6 +18,13 @@ import { toImageUri } from "../utils/imageSource";
 
 const screenWidth = Dimensions.get("window").width;
 
+const InfoRow = ({ label, value }) => (
+  <View style={styles.infoRow}>
+    <Text style={styles.infoLabel}>{label}</Text>
+    <Text style={styles.infoValue}>{value}</Text>
+  </View>
+);
+
 const PostScreen = ({ route }) => {
   const postId = route.params;
   const [post, setPost] = useState([]);
@@ -115,32 +122,29 @@ const PostScreen = ({ route }) => {
                   {post.categories?.join(", ") || "카테고리 없음"}
                 </Text>
                 <Text style={styles.titleText}>{post.title}</Text>
+                <Text style={styles.dateText}>
+                  {DateFormat(post.createdAt)}
+                </Text>
               </View>
               <StatusLabel status={post.status} />
             </View>
-            <Text style={styles.categoryText}>
-              {DateFormat(post.createdAt)}
-            </Text>
 
-            <View style={styles.infoList}>
-              {post.type === "FIND" && post.locationName && (
-                <Text style={styles.infoItem}>
-                  {"\u2022"} 습득 장소: {post.locationName}{" "}
-                  {post.locationDetail}
-                </Text>
-              )}
-              {post.type === "FIND" && post.storedLocation && (
-                <Text style={styles.infoItem}>
-                  {"\u2022"} 보관 위치: {post.storedLocation}
-                </Text>
-              )}
-              {post.type !== "FIND" && post.locationName && (
-                <Text style={styles.infoItem}>
-                  {"\u2022"} 분실 장소: {post.locationName}{" "}
-                  {post.locationDetail}
-                </Text>
-              )}
-            </View>
+            {(!!post.locationName ||
+              (post.type === "FIND" && !!post.storedLocation)) && (
+              <View style={styles.infoBox}>
+                {!!post.locationName && (
+                  <InfoRow
+                    label={post.type === "FIND" ? "습득 장소" : "분실 장소"}
+                    value={[post.locationName, post.locationDetail]
+                      .filter(Boolean)
+                      .join(" ")}
+                  />
+                )}
+                {post.type === "FIND" && !!post.storedLocation && (
+                  <InfoRow label="보관 위치" value={post.storedLocation} />
+                )}
+              </View>
+            )}
 
             <View style={styles.divider} />
 
@@ -253,30 +257,47 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 13,
-    color: "#6B7280",
-    marginBottom: 3,
+    color: "#215294",
+    fontWeight: "600",
+    marginBottom: 4,
   },
   titleText: {
     fontSize: 20,
-    fontWeight: "600",
+    fontWeight: "700",
+    lineHeight: 28,
+    color: "#111827",
   },
-  infoList: {
-    marginVertical: 10,
+  dateText: {
+    fontSize: 12,
+    color: "#9CA3AF",
+    marginTop: 4,
   },
-  infoItem: {
+  infoBox: {
+    marginTop: 16,
+    gap: 8,
+  },
+  infoRow: {
+    flexDirection: "row",
+  },
+  infoLabel: {
+    width: 72,
     fontSize: 14,
-    color: "#374151",
-    marginBottom: 3,
+    color: "#6B7280",
+  },
+  infoValue: {
+    flex: 1,
+    fontSize: 14,
+    color: "#111827",
+    fontWeight: "500",
   },
   divider: {
     height: 1,
     backgroundColor: "#E5E7EB",
-    marginVertical: 10,
+    marginVertical: 16,
   },
   bodyText: {
     fontSize: 15,
-    lineHeight: 22,
-    color: "#1F2937",
-    fontWeight: "500",
+    lineHeight: 24,
+    color: "#374151",
   },
 });

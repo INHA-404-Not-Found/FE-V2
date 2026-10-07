@@ -18,7 +18,7 @@ allprojects {
     google()
     mavenCentral()
     maven { url 'https://www.jitpack.io' }
-    // notifee core AAR은 npm 패키지 안의 로컬 maven repo로 배포됨
+    // Notifee의 core 라이브러리는 원격 저장소가 아니라 npm 패키지 안에 들어 있다
     maven { url "$rootDir/../node_modules/@notifee/react-native/android/libs" }
   }
 }

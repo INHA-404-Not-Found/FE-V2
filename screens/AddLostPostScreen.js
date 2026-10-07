@@ -3,11 +3,7 @@ import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import {
-  Image,
-  Pressable,
   ScrollView,
-  StyleSheet,
-  Text,
   TextInput,
   View,
 } from "react-native";
@@ -17,7 +13,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import api from "../api/api";
 import DefaultHeader from "../components/DefaultHeader";
+import FormBottomBar from "../components/FormBottomBar";
+import FormField, {
+  formStyles,
+  PLACEHOLDER_COLOR,
+} from "../components/FormField";
 import { TokenStore } from "../TokenStore";
+import PhotoPickerField from "../components/PhotoPickerField";
 
 const AddLostPostScreen = () => {
   const navigation = useNavigation();
@@ -32,6 +34,16 @@ const AddLostPostScreen = () => {
       value: c.id,
     }))
   );
+  const [locationOpen, setLocationOpen] = useState(false);
+  const locationList = useSelector((state) => state.location.locations);
+  const [locationItems, setLocationItems] = useState(
+    locationList.map((l) => ({
+      label: l.name,
+      value: l.id,
+    }))
+  );
+  const [locationId, setLocationId] = useState(null);
+  const [locationDetail, setLocationDetail] = useState("");
 
   const [title, setTitle] = useState("");
   const [storedLocation, setStoredLocation] = useState("");
@@ -100,13 +112,15 @@ const AddLostPostScreen = () => {
   const [postId, setPostId] = useState(null);
   const uploadPost = async () => {
     const res = await api.post(`/posts`, {
+      locationId,
+      locationDetail,
       title,
       content,
       status: "UNCOMPLETED",
       type: "LOST",
       categories,
     });
-    const newPostId = res.data.postId;
+    const newPostId = res.data; // BE는 CommonResponse<Long>으로 id만 내려준다
     setPostId(newPostId); // state도 갱신
     return newPostId; // 호출자에게 즉시 id를 반환
   };
@@ -183,218 +197,96 @@ const AddLostPostScreen = () => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }} edge={["top"]}>
       <DefaultHeader />
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.content}>
-          <View style={styles.flexRow}>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={[styles.textLabel, { marginTop: 13 }]}>제목</Text>
-              <Text style={[styles.star, { marginTop: 13 }]}> *</Text>
-            </View>
+      <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled">
+        <View style={formStyles.content}>
+          <FormField label="제목" required>
             <TextInput
               value={title}
               onChangeText={(text) => setTitle(text)}
-              style={styles.inputText}
+              placeholder="예) 검은색 반지갑"
+              placeholderTextColor={PLACEHOLDER_COLOR}
+              style={formStyles.input}
             />
-          </View>
-
-          <View style={styles.flexRow}>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={styles.textLabel}>물품 카테고리</Text>
-              <Text style={styles.star}> *</Text>
-            </View>
-            <View style={[styles.dropdownContainer, { zIndex: 3000 }]}>
-              <DropDownPicker
-                open={open}
-                value={categories}
-                items={items}
-                setItems={setItems}
-                setOpen={setOpen}
-                setValue={setCategories}
-                multiple={true}
-                min={0}
-                max={5}
-                placeholder="카테고리를 선택하세요"
-                mode="BADGE"
-                style={styles.dropdownPicker}
-              />
-            </View>
-          </View>
-
-          <View style={styles.flexRow}>
-            <Text style={[styles.textLabel, { marginTop: 13 }]}>내용</Text>
+          </FormField>
+          <FormField label="카테고리" required>
+            <DropDownPicker
+              listMode="SCROLLVIEW"
+              scrollViewProps={{ nestedScrollEnabled: true }}
+              dropDownContainerStyle={formStyles.dropdownList}
+              open={open}
+              value={categories}
+              items={items}
+              setItems={setItems}
+              setOpen={setOpen}
+              setValue={setCategories}
+              multiple={true}
+              min={0}
+              max={5}
+              placeholder="카테고리를 선택하세요"
+              placeholderStyle={formStyles.dropdownPlaceholder}
+              mode="BADGE"
+              style={formStyles.dropdown}
+              zIndex={3000}
+              zIndexInverse={1000}
+            />
+          </FormField>
+          <FormField label="분실 장소">
+            <DropDownPicker
+              listMode="SCROLLVIEW"
+              scrollViewProps={{ nestedScrollEnabled: true }}
+              dropDownContainerStyle={formStyles.dropdownList}
+              open={locationOpen}
+              value={locationId}
+              items={locationItems}
+              setItems={setLocationItems}
+              setOpen={setLocationOpen}
+              setValue={setLocationId}
+              multiple={false}
+              placeholder="장소를 선택하세요"
+              placeholderStyle={formStyles.dropdownPlaceholder}
+              mode="BADGE"
+              style={formStyles.dropdown}
+              zIndex={2000}
+              zIndexInverse={900}
+            />
+            <TextInput
+              placeholder="(선택) 세부 장소 예) 3층 복도"
+              placeholderTextColor={PLACEHOLDER_COLOR}
+              style={[formStyles.input, formStyles.subInput]}
+              value={locationDetail}
+              onChangeText={(text) => setLocationDetail(text)}
+            />
+          </FormField>
+          <FormField label="내용">
             <TextInput
               value={content}
               numberOfLines={5}
               multiline={true}
               onChangeText={(text) => setContent(text)}
-              style={[
-                styles.inputText,
-                {
-                  minHeight: 5 * 24,
-                  height: "auto",
-                  paddingTop: 10,
-                  textAlignVertical: "top",
-                },
-              ]}
+              placeholder="물품의 특징이나 분실 상황을 적어 주세요"
+              placeholderTextColor={PLACEHOLDER_COLOR}
+              style={[formStyles.input, formStyles.textArea]}
             />
-          </View>
-          <View style={[styles.flexRow, { alignItems: "center" }]}>
-            <Text style={styles.textLabel}>사진 등록</Text>
-            <Pressable
+          </FormField>
+          <FormField label="사진">
+            <PhotoPickerField
+              images={file}
+              max={2}
               onPress={pickImages}
-              style={({ pressed }) => [
-                styles.imageUploadBtn,
-                {
-                  marginLeft: 50,
-                  backgroundColor: pressed ? "#BEDEF3" : "#fff", // 👈 눌렀을 때 색 변경
-                  transform: [{ scale: pressed ? 0.98 : 1 }], // 👈 살짝 눌린 느낌 추가 (선택)
-                },
-              ]}
-            >
-              <Image
-                source={require("../assets/uploadImage2.png")}
-                style={{
-                  width: 15,
-                  height: 15,
-                  marginRight: 4,
-                }}
-              />
-              <Text style={styles.imageUploadText}>upload</Text>
-            </Pressable>
-          </View>
-
-          {file.length > 0 && (
-            <ScrollView
-              horizontal
-              nestedScrollEnabled={true}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingVertical: 8 }}
-            >
-              {file.map((img) => (
-                <Image
-                  key={img.uri}
-                  source={{ uri: img.uri }}
-                  style={{
-                    width: 80,
-                    height: 80,
-                    borderRadius: 8,
-                    marginRight: 8,
-                  }}
-                />
-              ))}
-            </ScrollView>
-          )}
+              onRemove={(uri) =>
+                setFile((prev) => prev.filter((f) => f.uri !== uri))
+              }
+            />
+          </FormField>
         </View>
       </ScrollView>
-      <View style={styles.buttonView}>
-        <Pressable style={styles.btn2} onPress={() => navigation.goBack()}>
-          <Text style={styles.btnText2}>취소하기</Text>
-        </Pressable>
-        <Pressable onPress={handleUpload} style={styles.btn}>
-          <Text style={styles.btnText}>등록하기</Text>
-        </Pressable>
-      </View>
+      <FormBottomBar
+        onCancel={() => navigation.goBack()}
+        onSubmit={handleUpload}
+        submitLabel="등록하기"
+      />
     </SafeAreaView>
   );
 };
 
 export default AddLostPostScreen;
-
-const styles = StyleSheet.create({
-  scrollView: {
-    marginBottom: 70, // 버튼 영역 확보
-  },
-  content: {
-    marginHorizontal: 30,
-    marginVertical: 15,
-    flexDirection: "column",
-  },
-  flexRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
-  textLabel: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#333",
-  },
-  star: {
-    color: "#fe2828",
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  inputText: {
-    width: 244,
-    height: 40,
-    fontSize: 13,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    marginVertical: 10,
-    color: "#333",
-    backgroundColor: "#fff",
-  },
-  dropdownPicker: {
-    width: 244,
-    borderColor: "#d9d9d9",
-    borderRadius: 8,
-    backgroundColor: "#fff",
-  },
-  buttonView: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginHorizontal: 30,
-    position: "absolute",
-    bottom: 60,
-  },
-  btn: {
-    backgroundColor: "#215294",
-    width: 160,
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: "center",
-    marginHorizontal: 10,
-  },
-  btnText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  btn2: {
-    backgroundColor: "#fff",
-    borderColor: "#215294",
-    borderWidth: 2,
-    width: 160,
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: "center",
-    marginHorizontal: 10,
-  },
-  btnText2: {
-    color: "#215294",
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  imageUploadBtn: {
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    width: 244,
-    height: 40,
-    borderWidth: 2,
-    borderColor: "#215294",
-    borderRadius: 8,
-    backgroundColor: "#fff",
-    paddingHorizontal: 12,
-    marginVertical: 10,
-  },
-  imageUploadText: {
-    color: "#215294",
-    fontSize: 13,
-    fontWeight: "500",
-  },
-});

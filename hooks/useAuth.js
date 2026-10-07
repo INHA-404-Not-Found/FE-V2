@@ -20,6 +20,7 @@ export function useAuth() {
 
       TokenStore.setToken(accessToken);
       await tokenStorage.saveTStorage({ accessToken, refreshToken });
+      await tokenStorage.saveStudentId(studentId);
 
       const savedRefresh = await tokenStorage.getRefreshTStorage();
       console.log("토큰 저장 완료:", TokenStore.getToken(), savedRefresh);
@@ -47,7 +48,7 @@ export function useAuth() {
 
   const logout = async () => {
     try {
-      await logoutApi(studentId);
+      await logoutApi(my?.studentId);
     } catch (e) {
       console.warn("서버 로그아웃 실패 (무시 가능)", e.message);
     } finally {

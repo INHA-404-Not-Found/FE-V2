@@ -117,7 +117,7 @@ const DefaultHeader = () => {
             {route.name === "AddLostPostScreen" && "분실 게시글 등록"}
             {route.name === "Notification" && "알림함"}
             {route.name === "SettingScreen" && "설정"}
-            {route.name === "UserScreen" && "마이페이지"}
+            {route.name === "UserScreen" && "내 정보"}
             {route.name === "PostListScreen" && "게시글 목록"}
             {route.name === "MyPostListScreen" && "내 게시글 목록"}
             {route.name === "PostScreen" && "게시물"}

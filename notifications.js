@@ -14,6 +14,7 @@ import {
   onTokenRefresh,
   requestPermission,
 } from "@react-native-firebase/messaging";
+import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 import api from "./api/api";
 import { navigate } from "./navigationRef";
@@ -52,9 +53,36 @@ export async function requestPushPermission() {
   );
 }
 
+// 설정 화면의 알림 켜기/끄기 값. 저장된 값이 없으면 켜진 것으로 본다.
+const PUSH_ENABLED_KEY = "push_enabled";
+
+export async function isPushEnabled() {
+  return (await SecureStore.getItemAsync(PUSH_ENABLED_KEY)) !== "false";
+}
+
+/**
+ * 알림 켜기/끄기. 끄면 서버에서 이 계정의 FCM 토큰을 지워 푸시가 오지 않게 한다.
+ * 실제로 적용된 상태를 돌려준다. (권한 거부 시 false)
+ */
+export async function setPushEnabled(enabled) {
+  if (enabled) {
+    const granted = await requestPushPermission();
+    if (!granted) return false;
+    await SecureStore.setItemAsync(PUSH_ENABLED_KEY, "true");
+    await registerPushToken();
+    return true;
+  }
+
+  await SecureStore.setItemAsync(PUSH_ENABLED_KEY, "false");
+  await api.delete("/fcm/token");
+  return false;
+}
+
 /** FCM 토큰을 백엔드에 저장한다. (Expo 푸시 토큰과 다른 값이다) */
 async function sendTokenToServer(token) {
   if (!token) return;
+  // 사용자가 알림을 끈 경우 앱 시작/로그인/토큰 갱신 때 다시 등록하지 않는다
+  if (!(await isPushEnabled())) return;
 
   try {
     const res = await api.post("/fcm/token", { token });

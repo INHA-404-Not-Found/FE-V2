@@ -13,6 +13,7 @@ import React, {
 } from "react";
 import {
   FlatList,
+  Keyboard,
   Image,
   Pressable,
   ScrollView,
@@ -34,7 +35,10 @@ import DefaultHeader from "../components/DefaultHeader";
 import LocationViewBox from "../components/LocationViewBox";
 import PostListItem from "../components/PostListItem";
 import PostTypeSelector from "../components/PostTypeSelector";
+import RecentSearchList from "../components/RecentSearchList";
 import SearchHeader from "../components/SearchHeader";
+import { setKeyword } from "../Redux/slices/keywordSlice";
+import { addRecentSearch } from "../utils/recentSearchStorage";
 const PostListScreen = ({ route }) => {
   const {
     category: initialCategory = null,
@@ -52,6 +56,7 @@ const PostListScreen = ({ route }) => {
   const keyword = useSelector((s) => s.search.keyword);
   const isSearching = useSelector((s) => s.search.isSearching);
   const [posts, setPosts] = useState([]);
+  const [showRecentSearches, setShowRecentSearches] = useState(false); // 검색창 포커스 시 최근 검색어 표시
   const [pageNo, setPageNo] = useState(1); // 게시물 조회 페이징
   // bottomSheet
   const bottomSheetCategoryModalRef = useRef(null);
@@ -106,15 +111,28 @@ const PostListScreen = ({ route }) => {
   }, [filters]);
 
   // 키워드 검색
-  const handleSearch = async () => {
+  const handleSearch = async (searchKeyword = keyword) => {
     setLoading(true);
     try {
-      await getPostsByKeyword(setPosts, keyword, pageNo, setHasNext);
+      await getPostsByKeyword(setPosts, searchKeyword, pageNo, setHasNext);
     } catch (e) {
       console.error("키워드 게시물 목록 조회 오류:", e.message);
     } finally {
       setLoading(false);
     }
+  };
+  // 검색 제출: 최근 검색어에 저장하고 목록을 다시 보여줌
+  const submitSearch = (searchKeyword = keyword) => {
+    setShowRecentSearches(false);
+    Keyboard.dismiss();
+    addRecentSearch(searchKeyword);
+    handleSearch(searchKeyword);
+  };
+  // 최근 검색어 선택 시 해당 키워드로 바로 검색
+  const handleSelectRecentSearch = (searchKeyword) => {
+    dispatch(setKeyword(searchKeyword));
+    resetPageNo();
+    submitSearch(searchKeyword);
   };
   // 키워드+필터 검색
   const handleSearchFilter = async () => {
@@ -205,7 +223,11 @@ const PostListScreen = ({ route }) => {
           edge={["top"]}
         >
           {isSearching ? (
-            <SearchHeader onSubmit={handleSearch} resetPageNo={resetPageNo} />
+            <SearchHeader
+              onSubmit={() => submitSearch()}
+              resetPageNo={resetPageNo}
+              onFocus={() => setShowRecentSearches(true)}
+            />
           ) : (
             <DefaultHeader />
           )}
@@ -353,6 +375,9 @@ const PostListScreen = ({ route }) => {
               style={{ flex: 1 }}
               contentContainerStyle={{ padding: 2 }}
             />
+            {isSearching && showRecentSearches && (
+              <RecentSearchList onSelect={handleSelectRecentSearch} />
+            )}
             <BottomSheetModal
               ref={bottomSheetCategoryModalRef}
               onChange={handleCategorySheetChanges}

@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
   },
   searchInput: {
-    width: 255,
+    flex: 1, // 고정 폭 대신 아이콘 사이 남는 공간을 채워 작은 화면에서 넘치지 않게 함
     height: 47,
     borderRadius: 10,
     backgroundColor: "#DADEE7",

@@ -1,11 +1,11 @@
-import * as SecureStore from "expo-secure-store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const RECENT_SEARCH_KEY = "recent_searches";
 const MAX_RECENT_SEARCHES = 10;
 
 export const getRecentSearches = async () => {
   try {
-    const value = await SecureStore.getItemAsync(RECENT_SEARCH_KEY);
+    const value = await AsyncStorage.getItem(RECENT_SEARCH_KEY);
     return value ? JSON.parse(value) : [];
   } catch (e) {
     console.error("최근 검색어 조회 오류:", e.message);
@@ -15,7 +15,7 @@ export const getRecentSearches = async () => {
 
 const saveRecentSearches = async (keywords) => {
   try {
-    await SecureStore.setItemAsync(RECENT_SEARCH_KEY, JSON.stringify(keywords));
+    await AsyncStorage.setItem(RECENT_SEARCH_KEY, JSON.stringify(keywords));
   } catch (e) {
     console.error("최근 검색어 저장 오류:", e.message);
   }
@@ -43,7 +43,7 @@ export const removeRecentSearch = async (keyword) => {
 
 export const clearRecentSearches = async () => {
   try {
-    await SecureStore.deleteItemAsync(RECENT_SEARCH_KEY);
+    await AsyncStorage.removeItem(RECENT_SEARCH_KEY);
   } catch (e) {
     console.error("최근 검색어 삭제 오류:", e.message);
   }

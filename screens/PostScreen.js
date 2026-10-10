@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import {
+  Dimensions,
   Image,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
-  Modal,
-  Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getPost } from "../api/post";
@@ -26,8 +26,18 @@ const InfoRow = ({ label, value }) => (
   </View>
 );
 
-const PostScreen = ({ route }) => {
-  const postId = route.params;
+const PostScreen = ({ route, navigation }) => {
+  // 목록에서 오면 { postId, postIds }, 그 외(알림, 등록 직후 등)는 postId만 넘어온다
+  const params = route.params;
+  const postId = typeof params === "object" ? params?.postId : params;
+  const postIds = typeof params === "object" ? params?.postIds : null;
+  const index = postIds ? postIds.indexOf(postId) : -1;
+  const prevId = index > 0 ? postIds[index - 1] : null;
+  const nextId =
+    index >= 0 && index < postIds.length - 1 ? postIds[index + 1] : null;
+  // replace로 바꿔서 몇 번을 넘겨도 뒤로가기 한 번이면 목록으로 돌아간다
+  const goTo = (id) =>
+    navigation.replace("PostScreen", { postId: id, postIds });
   const [post, setPost] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
@@ -155,6 +165,30 @@ const PostScreen = ({ route }) => {
             <Text style={styles.bodyText}>{post.content}</Text>
           </View>
         </View>
+
+        {/* 목록에서 들어온 경우에만 이전/다음 글 이동 (불러온 목록 범위 안에서) */}
+        {index >= 0 && (
+          <View style={styles.navRow}>
+            <Pressable
+              onPress={() => goTo(prevId)}
+              disabled={!prevId}
+              style={[styles.navBtn, !prevId && styles.navBtnDisabled]}
+            >
+              <Text style={[styles.navText, !prevId && styles.navTextDisabled]}>
+                ‹ 이전 글
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => goTo(nextId)}
+              disabled={!nextId}
+              style={[styles.navBtn, !nextId && styles.navBtnDisabled]}
+            >
+              <Text style={[styles.navText, !nextId && styles.navTextDisabled]}>
+                다음 글 ›
+              </Text>
+            </Pressable>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -253,6 +287,31 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   ContentContainer: {},
+  navRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginHorizontal: 14,
+    marginTop: 12,
+  },
+  navBtn: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 13,
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  navBtnDisabled: {
+    backgroundColor: "#F3F4F6",
+  },
+  navText: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: "#215294",
+  },
+  navTextDisabled: {
+    color: "#C4C4C4",
+  },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",

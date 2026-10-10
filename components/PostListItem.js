@@ -4,11 +4,15 @@ import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { toImageSource } from "../utils/imageSource";
 import { DateFormat } from "../utils/DateFormat";
 
-const PostListItem = ({ post }) => {
+// postIds: 목록에서 들어올 때만 넘겨 상세 화면에 이전/다음 버튼을 띄운다
+const PostListItem = ({ post, postIds }) => {
   const navigation = useNavigation();
   const imageSource = toImageSource(post?.imagePath);
   return (
-    <Pressable onPress={() => navigation.navigate("PostScreen", post.postId)}>
+    <Pressable onPress={() => navigation.navigate(
+          "PostScreen",
+          postIds ? { postId: post.postId, postIds } : post.postId,
+        )}>
       <View style={styles.postContainer}>
         <View style={styles.postImgWrapper}>
           <Image source={imageSource} style={styles.postImg} />

@@ -76,6 +76,8 @@ const PostListScreen = ({ route }) => {
 
   // snap points (모달 높이)
   const snapPoints = useMemo(() => ["40%"], []);
+  // 상세 화면의 이전/다음 이동에 쓰는 현재 목록 순서
+  const postIds = useMemo(() => posts.map((p) => p.postId), [posts]);
 
   // backdrop 생성 함수
   const renderBackdrop = useCallback(
@@ -368,7 +370,9 @@ const PostListScreen = ({ route }) => {
             <FlatList
               data={posts}
               keyExtractor={(item) => item.postId}
-              renderItem={({ item }) => <PostListItem post={item} />}
+              renderItem={({ item }) => (
+                <PostListItem post={item} postIds={postIds} />
+              )}
               showsVerticalScrollIndicator={false}
               onEndReached={onEndReached}
               onEndReachedThreshold={0.3}

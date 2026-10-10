@@ -26,7 +26,9 @@ import CategoryList from "../components/CategoryList";
 import DefaultHeader from "../components/DefaultHeader";
 import LocationViewBox from "../components/LocationViewBox";
 import PostTypeSelector from "../components/PostTypeSelector";
+import RecentSearchChips from "../components/RecentSearchChips";
 import { setKeyword } from "../Redux/slices/keywordSlice";
+import { addRecentSearch } from "../utils/recentSearchStorage";
 const MainScreen = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
@@ -50,6 +52,16 @@ const MainScreen = () => {
   const handleSheetChanges = useCallback((index) => {
     console.log("bottomSheetChanges", index);
   }, []);
+  // 검색어를 최근 검색어에 저장하고 현재 필터와 함께 목록으로 이동
+  const goSearch = (word) => {
+    addRecentSearch(word);
+    navigation.navigate("PostListScreen", {
+      category: selectedCate,
+      location: selectedLocation,
+      state: state,
+      postType: postType,
+    });
+  };
   // 필터링 초기화
   const resetFilter = () => {
     setSelectedCate(null);
@@ -77,7 +89,7 @@ const MainScreen = () => {
         pressBehavior="close" // ← 이게 핵심! 눌렀을 때 닫힘
       />
     ),
-    []
+    [],
   );
 
   return (
@@ -98,22 +110,20 @@ const MainScreen = () => {
               placeholderTextColor="#ffffffff"
               style={styles.textInput}
             />
-            <Pressable
-              onPress={() =>
-                navigation.navigate("PostListScreen", {
-                  category: selectedCate,
-                  location: selectedLocation,
-                  state: state,
-                  postType: postType,
-                })
-              }
-            >
+            <Pressable onPress={() => goSearch(keyword)}>
               <Image
                 source={require("../assets/searchWhite.png")}
                 style={styles.barImg}
               ></Image>
             </Pressable>
           </View>
+          <RecentSearchChips
+            onSelect={(item) => {
+              dispatch(setKeyword(item));
+              goSearch(item);
+            }}
+            style={styles.recentChips}
+          />
           <View style={styles.selectView}>
             <PostTypeSelector postType={postType} setPostType={setPostType} />
             <View>
@@ -272,9 +282,7 @@ const MainScreen = () => {
                   ></Image>
                   <Text style={styles.tagText}>{selectedCate.name}</Text>
                 </View>
-              ) : (
-                null
-              )}
+              ) : null}
               {selectedLocation ? (
                 <View key={selectedLocation.id} style={styles.tag}>
                   <Image
@@ -283,9 +291,7 @@ const MainScreen = () => {
                   ></Image>
                   <Text style={styles.tagText}>{selectedLocation.name}</Text>
                 </View>
-              ) : (
-                null
-              )}
+              ) : null}
               {state ? (
                 <View key={state} style={styles.tag}>
                   <Image
@@ -294,9 +300,7 @@ const MainScreen = () => {
                   ></Image>
                   <Text style={styles.tagText}>{state}</Text>
                 </View>
-              ) : (
-                null
-              )}
+              ) : null}
             </View>
           </View>
         </View>
@@ -324,10 +328,17 @@ const MainScreen = () => {
                     pressed && styles.bottomModalCardPressed,
                   ]}
                 >
-                  <Text style={[styles.bottomModalContentTitleText, { color: "#215294" }]}>
+                  <Text
+                    style={[
+                      styles.bottomModalContentTitleText,
+                      { color: "#215294" },
+                    ]}
+                  >
                     습득 등록
                   </Text>
-                  <Text style={[styles.bottomModalDescText, { color: "#4a6d9c" }]}>
+                  <Text
+                    style={[styles.bottomModalDescText, { color: "#4a6d9c" }]}
+                  >
                     물건을 주웠어요
                   </Text>
                 </Pressable>
@@ -340,10 +351,17 @@ const MainScreen = () => {
                     pressed && styles.bottomModalCardPressed,
                   ]}
                 >
-                  <Text style={[styles.bottomModalContentTitleText, { color: "#215294" }]}>
+                  <Text
+                    style={[
+                      styles.bottomModalContentTitleText,
+                      { color: "#215294" },
+                    ]}
+                  >
                     분실 등록
                   </Text>
-                  <Text style={[styles.bottomModalDescText, { color: "#4a6d9c" }]}>
+                  <Text
+                    style={[styles.bottomModalDescText, { color: "#4a6d9c" }]}
+                  >
                     물건을 잃어버렸어요
                   </Text>
                 </Pressable>
@@ -365,6 +383,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 25,
     backgroundColor: "#DADEE7",
+  },
+  recentChips: {
+    width: 345,
+    marginTop: 12,
   },
   searchBar: {
     width: 345,

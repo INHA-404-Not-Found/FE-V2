@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Image,
   Pressable,
@@ -14,7 +14,7 @@ import { useSelector } from "react-redux";
 import appConfig from "../app.json";
 import DefaultHeader from "../components/DefaultHeader";
 import { useAuth } from "../hooks/useAuth";
-import { isPushEnabled, setPushEnabled } from "../notifications";
+import { usePushSetting } from "../hooks/usePushSetting";
 
 // 설정 목록 한 줄: 왼쪽 라벨 + 오른쪽 값 (onPress가 있으면 > 표시, right가 있으면 그걸 표시)
 const SettingRow = ({ label, value, onPress, right }) => (
@@ -36,26 +36,7 @@ const UserScreen = () => {
   const navigation = useNavigation();
   const myInfo = useSelector((state) => state.my.info);
   const { logout } = useAuth();
-  const [pushOn, setPushOn] = useState(true);
-
-  useEffect(() => {
-    isPushEnabled().then(setPushOn);
-  }, []);
-
-  const togglePush = async (next) => {
-    setPushOn(next);
-    try {
-      const applied = await setPushEnabled(next);
-      setPushOn(applied);
-      if (next && !applied) {
-        alert("휴대폰 설정에서 알림 권한을 허용해 주세요.");
-      }
-    } catch (e) {
-      console.error("알림 설정 변경 실패:", e?.message);
-      setPushOn(!next);
-      alert("알림 설정을 변경하지 못했습니다.");
-    }
-  };
+  const { pushOn, togglePush } = usePushSetting();
 
   return (
     <SafeAreaView style={styles.safe} edge={["top"]}>

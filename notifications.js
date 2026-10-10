@@ -15,7 +15,7 @@ import {
   requestPermission,
 } from "@react-native-firebase/messaging";
 import * as SecureStore from "expo-secure-store";
-import { Platform } from "react-native";
+import { Linking, Platform } from "react-native";
 import api from "./api/api";
 import { navigate } from "./navigationRef";
 
@@ -52,6 +52,21 @@ export async function requestPushPermission() {
     status === AuthorizationStatus.PROVISIONAL
   );
 }
+
+/** 권한 요청 없이 현재 OS 알림 권한만 확인한다. */
+export async function hasPushPermission() {
+  const settings = await notifee.getNotificationSettings();
+  return (
+    settings.authorizationStatus === NotifeeAuthorizationStatus.AUTHORIZED ||
+    settings.authorizationStatus === NotifeeAuthorizationStatus.PROVISIONAL
+  );
+}
+
+/** 이 앱의 OS 알림 설정 화면을 연다. (권한을 거부해 다시 물어볼 수 없을 때) */
+export const openPushSettings = () =>
+  Platform.OS === "android"
+    ? notifee.openNotificationSettings()
+    : Linking.openSettings();
 
 // 설정 화면의 알림 켜기/끄기 값. 저장된 값이 없으면 켜진 것으로 본다.
 const PUSH_ENABLED_KEY = "push_enabled";

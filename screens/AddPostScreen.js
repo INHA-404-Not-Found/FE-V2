@@ -1,3 +1,4 @@
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { useNavigation } from "@react-navigation/native";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
@@ -20,6 +21,7 @@ import FormField, {
   formStyles,
   PLACEHOLDER_COLOR,
 } from "../components/FormField";
+import LocationSelectField from "../components/LocationSelectField";
 import { TokenStore } from "../TokenStore";
 import PhotoPickerField from "../components/PhotoPickerField";
 
@@ -34,14 +36,6 @@ const AddPostScreen = () => {
     categoryList.map((c) => ({
       label: c.name,
       value: c.id,
-    }))
-  );
-  const [locationOpen, setLocationOpen] = useState(false);
-  const locationList = useSelector((state) => state.location.locations);
-  const [locationItems, setLocationItems] = useState(
-    locationList.map((l) => ({
-      label: l.name,
-      value: l.id,
     }))
   );
   const [locationId, setLocationId] = useState(null);
@@ -201,133 +195,125 @@ const AddPostScreen = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }} edge={["top"]}>
-      <DefaultHeader />
-      <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled">
-        <View style={formStyles.content}>
-          <FormField label="제목" required>
-            <TextInput
-              value={title}
-              onChangeText={(text) => setTitle(text)}
-              placeholder="예) 검은색 반지갑"
-              placeholderTextColor={PLACEHOLDER_COLOR}
-              style={formStyles.input}
-            />
-          </FormField>
-          <FormField label="카테고리" required>
-            <DropDownPicker
-              listMode="SCROLLVIEW"
-              scrollViewProps={{ nestedScrollEnabled: true }}
-              dropDownContainerStyle={formStyles.dropdownList}
-              open={open}
-              value={categories}
-              items={items}
-              setItems={setItems}
-              setOpen={setOpen}
-              setValue={setCategories}
-              multiple={true}
-              min={0}
-              max={5}
-              placeholder="카테고리를 선택하세요"
-              placeholderStyle={formStyles.dropdownPlaceholder}
-              mode="BADGE"
-              style={formStyles.dropdown}
-              zIndex={3000}
-              zIndexInverse={1000}
-            />
-          </FormField>
-          <FormField label="습득 장소" required>
-            <DropDownPicker
-              listMode="SCROLLVIEW"
-              scrollViewProps={{ nestedScrollEnabled: true }}
-              dropDownContainerStyle={formStyles.dropdownList}
-              open={locationOpen}
-              value={locationId}
-              items={locationItems}
-              setItems={setLocationItems}
-              setOpen={setLocationOpen}
-              setValue={setLocationId}
-              multiple={false}
-              placeholder="장소를 선택하세요"
-              placeholderStyle={formStyles.dropdownPlaceholder}
-              mode="BADGE"
-              style={formStyles.dropdown}
-              zIndex={2000}
-              zIndexInverse={900}
-            />
-            <TextInput
-              placeholder="(선택) 세부 장소 예) 3층 복도"
-              placeholderTextColor={PLACEHOLDER_COLOR}
-              style={[formStyles.input, formStyles.subInput]}
-              value={locationDetail}
-              onChangeText={(text) => setLocationDetail(text)}
-            />
-          </FormField>
-          <FormField label="보관 위치">
-            <TextInput
-              value={storedLocation}
-              onChangeText={(text) => setStoredLocation(text)}
-              placeholder="예) 학생지원팀, 본인 보관"
-              placeholderTextColor={PLACEHOLDER_COLOR}
-              style={formStyles.input}
-            />
-          </FormField>
-          <FormField label="내용">
-            <TextInput
-              value={content}
-              numberOfLines={5}
-              multiline={true}
-              onChangeText={(text) => setContent(text)}
-              placeholder="물품의 특징이나 습득 상황을 적어 주세요"
-              placeholderTextColor={PLACEHOLDER_COLOR}
-              style={[formStyles.input, formStyles.textArea]}
-            />
-          </FormField>
-          <View style={styles.switchRow}>
-            <View style={{ flexShrink: 1 }}>
-              <Text style={styles.switchLabel}>학번 정보 포함</Text>
-              <Text style={styles.helperText}>
-                학생증처럼 주인을 알 수 있는 물건이면 켜 주세요
-              </Text>
-            </View>
-            <Switch
-              trackColor={{ false: "#d9d9d9", true: "#215294" }}
-              thumbColor="#ffffff"
-              onValueChange={toggleSwitch}
-              value={isSN}
-            />
-          </View>
-          {isSN && (
-            <FormField label="학번">
+    <BottomSheetModalProvider>
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: "white" }}
+        edge={["top"]}
+      >
+        <DefaultHeader />
+        <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled">
+          <View style={formStyles.content}>
+            <FormField label="제목" required>
               <TextInput
-                placeholder="학번 8자리"
+                value={title}
+                onChangeText={(text) => setTitle(text)}
+                placeholder="예) 검은색 반지갑"
                 placeholderTextColor={PLACEHOLDER_COLOR}
-                keyboardType="number-pad"
-                maxLength={8}
                 style={formStyles.input}
-                value={studentId}
-                onChangeText={(t) => setStudentId(t)}
               />
             </FormField>
-          )}
-          <FormField label="사진">
-            <PhotoPickerField
-              images={file}
-              max={2}
-              onPress={pickImages}
-              onRemove={(uri) =>
-                setFile((prev) => prev.filter((f) => f.uri !== uri))
-              }
-            />
-          </FormField>
-        </View>
-      </ScrollView>
-      <FormBottomBar
-        onCancel={() => navigation.goBack()}
-        onSubmit={handleUpload}
-        submitLabel="등록하기"
-      />
-    </SafeAreaView>
+            <FormField label="카테고리" required>
+              <DropDownPicker
+                listMode="SCROLLVIEW"
+                scrollViewProps={{ nestedScrollEnabled: true }}
+                dropDownContainerStyle={formStyles.dropdownList}
+                open={open}
+                value={categories}
+                items={items}
+                setItems={setItems}
+                setOpen={setOpen}
+                setValue={setCategories}
+                multiple={true}
+                min={0}
+                max={5}
+                placeholder="카테고리를 선택하세요"
+                placeholderStyle={formStyles.dropdownPlaceholder}
+                mode="BADGE"
+                style={formStyles.dropdown}
+                zIndex={3000}
+                zIndexInverse={1000}
+              />
+            </FormField>
+            <FormField label="습득 장소" required>
+              <LocationSelectField
+                title="습득 장소"
+                locationId={locationId}
+                setLocationId={setLocationId}
+              />
+              <TextInput
+                placeholder="(선택) 세부 장소 예) 3층 복도"
+                placeholderTextColor={PLACEHOLDER_COLOR}
+                style={[formStyles.input, formStyles.subInput]}
+                value={locationDetail}
+                onChangeText={(text) => setLocationDetail(text)}
+              />
+            </FormField>
+            <FormField label="보관 위치">
+              <TextInput
+                value={storedLocation}
+                onChangeText={(text) => setStoredLocation(text)}
+                placeholder="예) 학생지원팀, 본인 보관"
+                placeholderTextColor={PLACEHOLDER_COLOR}
+                style={formStyles.input}
+              />
+            </FormField>
+            <FormField label="내용">
+              <TextInput
+                value={content}
+                numberOfLines={5}
+                multiline={true}
+                onChangeText={(text) => setContent(text)}
+                placeholder="물품의 특징이나 습득 상황을 적어 주세요"
+                placeholderTextColor={PLACEHOLDER_COLOR}
+                style={[formStyles.input, formStyles.textArea]}
+              />
+            </FormField>
+            <View style={styles.switchRow}>
+              <View style={{ flexShrink: 1 }}>
+                <Text style={styles.switchLabel}>학번 정보 포함</Text>
+                <Text style={styles.helperText}>
+                  학생증처럼 주인을 알 수 있는 물건이면 켜 주세요
+                </Text>
+              </View>
+              <Switch
+                trackColor={{ false: "#d9d9d9", true: "#215294" }}
+                thumbColor="#ffffff"
+                onValueChange={toggleSwitch}
+                value={isSN}
+              />
+            </View>
+            {isSN && (
+              <FormField label="학번">
+                <TextInput
+                  placeholder="학번 8자리"
+                  placeholderTextColor={PLACEHOLDER_COLOR}
+                  keyboardType="number-pad"
+                  maxLength={8}
+                  style={formStyles.input}
+                  value={studentId}
+                  onChangeText={(t) => setStudentId(t)}
+                />
+              </FormField>
+            )}
+            <FormField label="사진">
+              <PhotoPickerField
+                images={file}
+                max={2}
+                onPress={pickImages}
+                onRemove={(uri) =>
+                  setFile((prev) => prev.filter((f) => f.uri !== uri))
+                }
+              />
+            </FormField>
+          </View>
+        </ScrollView>
+        <FormBottomBar
+          onCancel={() => navigation.goBack()}
+          onSubmit={handleUpload}
+          submitLabel="등록하기"
+        />
+      </SafeAreaView>
+    </BottomSheetModalProvider>
   );
 };
 

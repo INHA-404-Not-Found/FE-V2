@@ -32,7 +32,7 @@ import {
 } from "../api/post";
 import CategoryList from "../components/CategoryList";
 import DefaultHeader from "../components/DefaultHeader";
-import LocationViewBox from "../components/LocationViewBox";
+import LocationPicker from "../components/LocationPicker";
 import PostListItem from "../components/PostListItem";
 import PostTypeSelector from "../components/PostTypeSelector";
 import RecentSearchList from "../components/RecentSearchList";
@@ -407,7 +407,7 @@ const PostListScreen = ({ route }) => {
                   <View style={styles.bottomModalContentTitle}>
                     <Text style={styles.bottomModalContentTitleText}>위치</Text>
                   </View>
-                  <LocationViewBox
+                  <LocationPicker
                     selected={location}
                     setSelected={setLocation}
                   />

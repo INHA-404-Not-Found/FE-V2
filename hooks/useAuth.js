@@ -48,7 +48,9 @@ export function useAuth() {
 
   const logout = async () => {
     try {
-      await logoutApi(my?.studentId);
+      // 서버 DB의 refresh token을 지우려면 바디에 refreshToken을 보내야 한다
+      const refreshToken = await tokenStorage.getRefreshTStorage();
+      await logoutApi(refreshToken);
     } catch (e) {
       console.warn("서버 로그아웃 실패 (무시 가능)", e.message);
     } finally {

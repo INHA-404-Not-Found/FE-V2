@@ -7,7 +7,7 @@ export const loginApi = (studentId, password) =>
     password,
     isWeb: false,
   });
-export const logoutApi = (studentId) => api.post("/auth/logout", { studentId });
+export const logoutApi = (refreshToken) => api.post("/auth/logout", { refreshToken });
 export const fetchMyInfoApi = () => api.get("/auth/profile");
 
 /*

@@ -96,6 +96,9 @@ async function sendTokenToServer(token) {
   }
 }
 
+/** 현재 기기의 FCM 토큰 조회 (서버 등록 없이) */
+export const getPushToken = () => getToken(messagingInstance());
+
 /**
  * 권한 요청 -> 토큰 발급 -> 서버 저장.
  * 로그인 토큰이 복원된 뒤에 호출해야 /fcm/token 이 401로 떨어지지 않는다.
@@ -113,7 +116,7 @@ export async function registerPushToken() {
 }
 
 /** foreground에서는 OS가 알림을 자동으로 띄우지 않으므로 직접 표시한다. */
-async function displayNotification(remoteMessage) {
+export async function displayNotification(remoteMessage) {
   const { notification, data } = remoteMessage ?? {};
 
   await notifee.displayNotification({

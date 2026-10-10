@@ -384,9 +384,12 @@ const styles = StyleSheet.create({
     padding: 25,
     backgroundColor: "#DADEE7",
   },
+  // 위아래 간격을 16으로 맞춤 (selectView의 marginTop 25에서 9를 상쇄)
+  // 최근 검색어가 없으면 칩이 렌더링되지 않아 검색창-필터 간격은 원래대로 25
   recentChips: {
     width: 345,
-    marginTop: 12,
+    marginTop: 16,
+    marginBottom: -9,
   },
   searchBar: {
     width: 345,

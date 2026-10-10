@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getPost } from "../api/post";
 import DefaultHeader from "../components/DefaultHeader";
+import LocationPreview from "../components/LocationPreview";
 import StatusLabel from "../components/StatusLabel";
 import { DateFormat } from "../utils/DateFormat";
 import { toImageUri } from "../utils/imageSource";
@@ -144,6 +145,9 @@ const PostScreen = ({ route }) => {
                   <InfoRow label="보관 위치" value={post.storedLocation} />
                 )}
               </View>
+            )}
+            {post.type === "FIND" && !!post.locationName && (
+              <LocationPreview locationName={post.locationName} />
             )}
 
             <View style={styles.divider} />

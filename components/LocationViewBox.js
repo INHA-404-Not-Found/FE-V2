@@ -136,10 +136,10 @@ export const CAMPUS_ZONES = [
   },
 ];
 // map 이미지
-const MAP_IMAGE = require("../assets/inhaMap.png");
+export const MAP_IMAGE = require("../assets/inhaMap.png");
 // 원본 PNG의 실제 크기(px)
-const ORIGINAL_WIDTH = 1520;
-const ORIGINAL_HEIGHT = 918;
+export const ORIGINAL_WIDTH = 1520;
+export const ORIGINAL_HEIGHT = 918;
 
 const FIXED_SCALE = 2;
 const vbW = ORIGINAL_WIDTH / FIXED_SCALE;
@@ -148,7 +148,7 @@ const vbH = ORIGINAL_HEIGHT / FIXED_SCALE;
 const SPEED = 3; // 원하는 배율 (1 = 기본속도, 2 = 두배 빠름)
 
 // "M x y L x y H x V y Z" 형태의 path를 꼭짓점 배열로 변환
-const parsePolygon = (d) => {
+export const parsePolygon = (d) => {
   const points = [];
   let x = 0;
   let y = 0;

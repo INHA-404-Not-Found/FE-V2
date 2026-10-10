@@ -16,7 +16,6 @@ import {
   Keyboard,
   Image,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -247,12 +246,8 @@ const PostListScreen = ({ route }) => {
                 </Text>
               </Pressable>
             </View>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.filterBtnContainer}
-              contentContainerStyle={styles.filterBtnContent}
-            >
+            {/* 한 줄에 다 안 들어가면 다음 줄로 넘긴다 */}
+            <View style={styles.filterBtnContainer}>
               <Pressable
                 onPress={handleCategoryModalPress}
                 style={[
@@ -366,7 +361,7 @@ const PostListScreen = ({ route }) => {
                   인계됨
                 </Text>
               </Pressable>
-            </ScrollView>
+            </View>
             <FlatList
               data={posts}
               keyExtractor={(item) => item.postId}
@@ -443,42 +438,36 @@ const styles = StyleSheet.create({
     height: 15,
   },
   filterDownBtn: {
+    height: 32,
     borderWidth: 1,
     borderRadius: 16,
     borderColor: "#dbdbdb",
     flexDirection: "row",
-    alignSelf: "flex-start",
     alignItems: "center",
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    paddingLeft: 13,
-    marginRight: 8,
+    paddingLeft: 12,
+    paddingRight: 6,
   },
   filterBtn: {
+    height: 32,
     borderWidth: 1,
     borderRadius: 16,
     borderColor: "#dbdbdb",
     flexDirection: "row",
-    alignSelf: "flex-start",
     alignItems: "center",
-    paddingVertical: 8,
     paddingHorizontal: 12,
-    marginRight: 8,
   },
   filterDownImg: {
-    width: 20,
-    height: 26,
-    marginLeft: 4,
+    width: 14,
+    height: 18,
+    marginLeft: 2,
+    resizeMode: "contain",
   },
   filterBtnContainer: {
-    paddingVertical: 8,
-    flexGrow: 0,
-    flexDirection: "center",
-    alignItem: "center",
-  },
-  filterBtnContent: {
     flexDirection: "row",
+    flexWrap: "wrap",
     alignItems: "center",
+    gap: 6,
+    paddingVertical: 8,
   },
   bottomSheetModal: {
     borderRadius: 25,

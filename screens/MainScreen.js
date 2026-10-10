@@ -5,6 +5,7 @@ import {
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import { useNavigation } from "@react-navigation/native";
+import { ScrollView } from "react-native-gesture-handler";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   Image,
@@ -39,6 +40,8 @@ const MainScreen = () => {
   const [selectedCate, setSelectedCate] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [state, setState] = useState(""); // "" UNCOMPLETED COMPLETED POLICE
+  // 하단 바가 absolute로 떠 있어 스크롤 끝 내용을 가리므로, 바 높이만큼 아래 여백을 더한다
+  const [bottomBarHeight, setBottomBarHeight] = useState(0);
   // bottomSheet
   const bottomSheetModalRef = useRef(null);
   const handleModalPress = useCallback(() => {
@@ -101,7 +104,15 @@ const MainScreen = () => {
       >
         <DefaultHeader />
 
-        <View style={styles.contentTop}>
+        {/* 지도 탭을 열면 작은 화면에서 넘치므로 스크롤. 지도 드래그와 맞물리도록 gesture-handler의 ScrollView 사용 */}
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={[
+            styles.contentTop,
+            { paddingBottom: bottomBarHeight + 25 },
+          ]}
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={styles.searchBar}>
             <TextInput
               value={keyword}
@@ -303,11 +314,14 @@ const MainScreen = () => {
               ) : null}
             </View>
           </View>
-        </View>
+        </ScrollView>
 
         {/* 하단 바 */}
         <View style={styles.contentBottom}>
-          <BottomBar handleModalPress={handleModalPress} />
+          <BottomBar
+            handleModalPress={handleModalPress}
+            onLayout={(e) => setBottomBarHeight(e.nativeEvent.layout.height)}
+          />
         </View>
 
         <BottomSheetModal
@@ -377,8 +391,12 @@ const MainScreen = () => {
 export default MainScreen;
 
 const styles = StyleSheet.create({
-  contentTop: {
+  scroll: {
     flex: 1,
+    backgroundColor: "#DADEE7",
+  },
+  contentTop: {
+    flexGrow: 1,
     flexDirection: "column",
     alignItems: "center",
     padding: 25,

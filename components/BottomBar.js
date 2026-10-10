@@ -4,7 +4,7 @@ import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TokenStore } from "../TokenStore";
 
-const BottomBar = ({ handleModalPress }) => {
+const BottomBar = ({ handleModalPress, onLayout }) => {
   const navigation = useNavigation();
   // edge-to-edge라 앱이 시스템 내비게이션 바 뒤까지 그려지므로 그만큼 띄워 준다
   const insets = useSafeAreaInsets();
@@ -24,7 +24,10 @@ const BottomBar = ({ handleModalPress }) => {
   return (
     // 등록 버튼이 바 위로 돌출되는데, Android는 부모 영역 밖 터치를 받지 않으므로
     // 투명한 wrapper가 돌출 부분까지 감싸고 흰 배경은 아래에 따로 깐다
-    <View style={[styles.wrapper, { paddingBottom: insets.bottom + 6 }]}>
+    <View
+      style={[styles.wrapper, { paddingBottom: insets.bottom + 6 }]}
+      onLayout={onLayout}
+    >
       <View style={styles.background} />
 
       {/* 내가 올린 글 */}

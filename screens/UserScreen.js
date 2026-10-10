@@ -87,6 +87,18 @@ const UserScreen = () => {
           />
         </View>
 
+        {(__DEV__ || myInfo?.role === "ADMIN") && (
+          <>
+            <Text style={styles.sectionTitle}>개발자</Text>
+            <View style={styles.card}>
+              <SettingRow
+                label="테스트 페이지"
+                onPress={() => navigation.navigate("DevTestScreen")}
+              />
+            </View>
+          </>
+        )}
+
         <Text style={styles.sectionTitle}>앱 정보</Text>
         <View style={styles.card}>
           <SettingRow label="버전" value={appConfig.expo.version} />

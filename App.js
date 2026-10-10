@@ -31,6 +31,7 @@ import NotificationListScreen from "./screens/NotificationListScreen";
 import PostListScreen from "./screens/PostListScreen";
 import PostScreen from "./screens/PostScreen";
 import UserScreen from "./screens/UserScreen";
+import DevTestScreen from "./screens/DevTestScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -95,6 +96,8 @@ function AppContent() {
           name="NotificationListScreen"
           component={NotificationListScreen}
         />
+        {/* 개발자 테스트 화면 */}
+        <Stack.Screen name="DevTestScreen" component={DevTestScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

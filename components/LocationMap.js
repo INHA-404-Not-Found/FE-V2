@@ -11,7 +11,7 @@ import {
   ORIGINAL_HEIGHT,
   ORIGINAL_WIDTH,
   parsePolygon,
-} from "./LocationViewBox";
+} from "../constants/campusMap";
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 4;

@@ -11,7 +11,7 @@ import {
   ORIGINAL_HEIGHT,
   ORIGINAL_WIDTH,
   parsePolygon,
-} from "./LocationViewBox";
+} from "../constants/campusMap";
 
 const PREVIEW_ASPECT = 16 / 9;
 

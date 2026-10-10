@@ -42,6 +42,11 @@ const MainScreen = () => {
   const handleModalPress = useCallback(() => {
     bottomSheetModalRef.current?.present();
   }, []);
+  // 등록 화면으로 이동할 때 시트를 닫아, 뒤로 돌아왔을 때 열린 채로 남지 않게 한다
+  const navigateFromSheet = (screen) => {
+    bottomSheetModalRef.current?.dismiss();
+    navigation.navigate(screen);
+  };
   const handleSheetChanges = useCallback((index) => {
     console.log("bottomSheetChanges", index);
   }, []);
@@ -310,29 +315,39 @@ const MainScreen = () => {
           <BottomSheetView style={styles.contentContainer}>
             {/* react-native의 SafeAreaView는 Android에서 inset을 적용하지 않아 직접 계산한다 */}
             <View style={{ paddingBottom: insets.bottom }}>
-              <Pressable
-                onPress={() => navigation.navigate("AddPostScreen")}
-                style={({ pressed }) => [
-                  styles.bottomModalBtn,
-                  { backgroundColor: pressed ? "#f2f6ff" : "#FFFFFF" },
-                ]}
-              >
-                <Text style={styles.bottomModalContentTitleText}>
-                  습득 게시글 등록
-                </Text>
-              </Pressable>
+              <View style={styles.bottomModalCards}>
+                <Pressable
+                  onPress={() => navigateFromSheet("AddPostScreen")}
+                  style={({ pressed }) => [
+                    styles.bottomModalCard,
+                    { backgroundColor: "#e8eef7" },
+                    pressed && styles.bottomModalCardPressed,
+                  ]}
+                >
+                  <Text style={[styles.bottomModalContentTitleText, { color: "#215294" }]}>
+                    습득 등록
+                  </Text>
+                  <Text style={[styles.bottomModalDescText, { color: "#4a6d9c" }]}>
+                    물건을 주웠어요
+                  </Text>
+                </Pressable>
 
-              <Pressable
-                onPress={() => navigation.navigate("AddLostPostScreen")}
-                style={({ pressed }) => [
-                  styles.bottomModalBtn,
-                  { backgroundColor: pressed ? "#f2f6ff" : "#FFFFFF" },
-                ]}
-              >
-                <Text style={styles.bottomModalContentTitleText}>
-                  분실 게시글 등록
-                </Text>
-              </Pressable>
+                <Pressable
+                  onPress={() => navigateFromSheet("AddLostPostScreen")}
+                  style={({ pressed }) => [
+                    styles.bottomModalCard,
+                    { backgroundColor: "#e8eef7" },
+                    pressed && styles.bottomModalCardPressed,
+                  ]}
+                >
+                  <Text style={[styles.bottomModalContentTitleText, { color: "#215294" }]}>
+                    분실 등록
+                  </Text>
+                  <Text style={[styles.bottomModalDescText, { color: "#4a6d9c" }]}>
+                    물건을 잃어버렸어요
+                  </Text>
+                </Pressable>
+              </View>
             </View>
           </BottomSheetView>
         </BottomSheetModal>
@@ -411,21 +426,37 @@ const styles = StyleSheet.create({
   bottomSheetModal: {
     borderRadius: 25,
   },
+  // 핸들 아래는 핸들 자체 여백이 있어 좁게, 좌우·하단은 20으로 통일
   contentContainer: {
-    paddingTop: 10,
+    paddingTop: 8,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   bottomModalContentTitle: {
     alignItem: "center",
     padding: 10,
   },
-  bottomModalBtn: {
-    alignItems: "center",
-    padding: 10,
+  bottomModalCards: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  bottomModalCard: {
+    flex: 1,
+    padding: 20,
+    borderRadius: 8,
+  },
+  bottomModalCardPressed: {
+    opacity: 0.7,
   },
   bottomModalContentTitleText: {
-    fontSize: 18,
-    fontWeight: 600,
-    paddingBottom: 10,
+    fontSize: 17,
+    fontWeight: "600",
+    color: "#111827",
+  },
+  bottomModalDescText: {
+    marginTop: 4,
+    fontSize: 13,
+    color: "#6b7280",
   },
   tagWrap: {
     flexDirection: "row",

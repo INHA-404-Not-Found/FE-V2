@@ -297,7 +297,7 @@ const EditPostScreen = ({ route }) => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }} edges={["top", "bottom"]}>
       <DefaultHeader />
       {post ? (
         <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled">

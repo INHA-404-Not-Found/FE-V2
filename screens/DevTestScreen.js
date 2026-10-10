@@ -8,18 +8,21 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import api from "../api/api";
 import DefaultHeader from "../components/DefaultHeader";
 import {
   displayNotification,
   getPushToken,
   registerPushToken,
 } from "../notifications";
+import { TokenStore } from "../TokenStore";
 
 // 개발 빌드 또는 관리자 계정에서만 진입 (UserScreen의 개발자 섹션)
 const DevTestScreen = () => {
   const [fcmToken, setFcmToken] = useState(null);
   const [registerResult, setRegisterResult] = useState("");
   const [postId, setPostId] = useState("");
+  const [refreshResult, setRefreshResult] = useState("");
 
   useEffect(() => {
     getPushToken()
@@ -48,6 +51,26 @@ const DevTestScreen = () => {
       },
       data: postId ? { postId } : {},
     });
+  };
+
+  // access token을 망가뜨린 뒤 API를 호출해 401/403 → /auth/refresh → 재요청 흐름을 확인한다
+  const handleRefreshTest = async () => {
+    setRefreshResult("테스트 중...");
+    TokenStore.setToken("invalid-access-token");
+    try {
+      await api.get("/auth/profile");
+      const renewed = TokenStore.getToken();
+      setRefreshResult(
+        renewed && renewed !== "invalid-access-token"
+          ? "성공: 토큰이 갱신되고 원래 요청이 재시도됨"
+          : "실패: 요청은 성공했지만 토큰이 갱신되지 않음",
+      );
+    } catch (e) {
+      // 갱신 실패 시 인터셉터가 저장된 토큰을 모두 지운다 (로그아웃 상태)
+      setRefreshResult(
+        `실패: ${e?.response?.status ?? ""} ${e?.message} (토큰 삭제됨, 다시 로그인 필요)`,
+      );
+    }
   };
 
   return (
@@ -91,6 +114,19 @@ const DevTestScreen = () => {
           </Pressable>
           <Text style={styles.resultText}>
             알림이 뜨면 눌러서 해당 화면으로 이동하는지 확인
+          </Text>
+        </View>
+
+        <Text style={styles.sectionTitle}>토큰 갱신</Text>
+        <View style={styles.card}>
+          <Pressable
+            onPress={handleRefreshTest}
+            style={({ pressed }) => [styles.btn, pressed && styles.btnPressed]}
+          >
+            <Text style={styles.btnText}>access token 강제 만료 후 API 호출</Text>
+          </Pressable>
+          <Text style={styles.resultText}>
+            {refreshResult || "자동으로 토큰이 갱신되는지 확인"}
           </Text>
         </View>
       </ScrollView>

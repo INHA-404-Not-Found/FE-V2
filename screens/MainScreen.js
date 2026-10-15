@@ -119,6 +119,8 @@ const MainScreen = () => {
               onChangeText={(text) => dispatch(setKeyword(text))}
               placeholder="검색어 없음"
               placeholderTextColor="#ffffffff"
+              returnKeyType="search"
+              onSubmitEditing={() => goSearch(keyword)}
               style={styles.textInput}
             />
             <Pressable onPress={() => goSearch(keyword)}>
@@ -313,6 +315,16 @@ const MainScreen = () => {
                 </View>
               ) : null}
             </View>
+            {/* 검색 아이콘과 같은 goSearch로 이동해, 어느 쪽으로 넘어가도 같은 조건이 적용된다 */}
+            <Pressable
+              onPress={() => goSearch(keyword)}
+              style={({ pressed }) => [
+                styles.resultBtn,
+                pressed && styles.resultBtnPressed,
+              ]}
+            >
+              <Text style={styles.resultBtnText}>결과 보기</Text>
+            </Pressable>
           </View>
         </ScrollView>
 
@@ -435,8 +447,8 @@ const styles = StyleSheet.create({
     borderBlockColor: "#DADEE7",
     marginTop: 25,
     padding: 5,
-
-    paddingBottom: 30,
+    // 맨 아래가 결과 보기 버튼이라 버튼 아래 여백만 좁힌다
+    paddingBottom: 20,
   },
   filterResetBtn: {
     flexDirection: "row",
@@ -500,6 +512,23 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 13,
     color: "#6b7280",
+  },
+  resultBtn: {
+    marginTop: 20,
+    marginHorizontal: 20,
+    height: 48,
+    borderRadius: 10,
+    backgroundColor: "#2165A6",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  resultBtnPressed: {
+    opacity: 0.8,
+  },
+  resultBtnText: {
+    color: "#ffffff",
+    fontSize: 14,
+    fontWeight: "600",
   },
   tagWrap: {
     flexDirection: "row",

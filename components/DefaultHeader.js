@@ -155,8 +155,9 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
     paddingRight: 7,
     alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.29)",
+    // 진한 회색 선이 화면에서 튀어 보여, 필터 UI의 연한 톤에 맞춘 얇은 선으로 둔다
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#EEF0F4",
   },
   headerText: {
     fontSize: 21,

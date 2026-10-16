@@ -24,12 +24,27 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import BottomBar from "../components/BottomBar";
 import CategoryList from "../components/CategoryList";
+import CheckboxGrid from "../components/CheckboxGrid";
 import DefaultHeader from "../components/DefaultHeader";
 import LocationViewBox from "../components/LocationViewBox";
 import PostTypeSelector from "../components/PostTypeSelector";
 import RecentSearchChips from "../components/RecentSearchChips";
 import { setKeyword } from "../Redux/slices/keywordSlice";
 import { addRecentSearch } from "../utils/recentSearchStorage";
+const FILTER_TABS = [
+  { id: "category", name: "물품 카테고리" },
+  { id: "location", name: "습득/분실 위치" },
+  { id: "status", name: "완료 여부" },
+];
+const STATUS_OPTIONS = [
+  { id: "UNCOMPLETED", name: "미완료" },
+  { id: "COMPLETED", name: "완료" },
+  { id: "POLICE", name: "인계됨" },
+];
+const STATUS_LABELS = Object.fromEntries(
+  STATUS_OPTIONS.map((o) => [o.id, o.name]),
+);
+
 const MainScreen = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
@@ -65,6 +80,24 @@ const MainScreen = () => {
       postType: postType,
     });
   };
+  // 선택된 필터를 태그로 보여주고, 태그를 누르면 그 필터만 해제한다
+  const selectedTags = [
+    selectedCate && {
+      key: "category",
+      name: selectedCate.name,
+      onRemove: () => setSelectedCate(null),
+    },
+    selectedLocation && {
+      key: "location",
+      name: selectedLocation.name,
+      onRemove: () => setSelectedLocation(null),
+    },
+    state && {
+      key: "status",
+      name: STATUS_LABELS[state],
+      onRemove: () => setState(""),
+    },
+  ].filter(Boolean);
   // 필터링 초기화
   const resetFilter = () => {
     setSelectedCate(null);
@@ -140,7 +173,13 @@ const MainScreen = () => {
           <View style={styles.selectView}>
             <PostTypeSelector postType={postType} setPostType={setPostType} />
             <View>
-              <Pressable onPress={resetFilter} style={[styles.filterResetBtn]}>
+              <Pressable
+                onPress={resetFilter}
+                style={({ pressed }) => [
+                  styles.filterResetBtn,
+                  pressed && styles.filterResetBtnPressed,
+                ]}
+              >
                 <Image
                   source={require("../assets/filterReset.png")}
                   style={styles.resetImg}
@@ -151,42 +190,25 @@ const MainScreen = () => {
               </Pressable>
             </View>
             <View style={styles.selectBtnRow}>
-              <Pressable
-                onPress={() => setSelectType("category")}
-                style={[
-                  styles.selectBtn,
-                  {
-                    backgroundColor:
-                      selectType === "category" ? "#D9D9D9" : "#ffffff",
-                  },
-                ]}
-              >
-                <Text style={styles.BtnText}>물품 카테고리</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => setSelectType("location")}
-                style={[
-                  styles.selectBtn,
-                  {
-                    backgroundColor:
-                      selectType === "location" ? "#D9D9D9" : "#ffffff",
-                  },
-                ]}
-              >
-                <Text style={styles.BtnText}>습득/분실 위치</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => setSelectType("status")}
-                style={[
-                  styles.selectBtn,
-                  {
-                    backgroundColor:
-                      selectType === "status" ? "#D9D9D9" : "#ffffff",
-                  },
-                ]}
-              >
-                <Text style={styles.BtnText}>완료 여부</Text>
-              </Pressable>
+              {FILTER_TABS.map((tab) => {
+                const active = selectType === tab.id;
+                return (
+                  <Pressable
+                    key={tab.id}
+                    onPress={() => setSelectType(tab.id)}
+                    style={[styles.selectBtn, active && styles.selectBtnActive]}
+                  >
+                    <Text
+                      style={[
+                        styles.selectBtnText,
+                        active && styles.selectBtnTextActive,
+                      ]}
+                    >
+                      {tab.name}
+                    </Text>
+                  </Pressable>
+                );
+              })}
             </View>
 
             <View>
@@ -205,116 +227,27 @@ const MainScreen = () => {
                 </View>
               )}
               {selectType === "status" && (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    paddingTop: 15,
-                    paddingBottom: 25,
-                    paddingHorizontal: 30,
-                  }}
-                >
-                  <Pressable
-                    onPress={() => handleState("UNCOMPLETED")}
-                    style={[
-                      styles.filterBtn,
-                      {
-                        borderColor:
-                          state === "UNCOMPLETED" ? "darkGray" : "#a8a8a8",
-                        backgroundColor:
-                          state === "UNCOMPLETED" ? "#d9d9d9" : "rgba(0,0,0,0)",
-                      },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.BtnText,
-                        {
-                          color:
-                            state === "UNCOMPLETED" ? "darkGray" : "#a8a8a8",
-                        },
-                      ]}
-                    >
-                      미완료
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => handleState("COMPLETED")}
-                    style={[
-                      styles.filterBtn,
-                      {
-                        borderColor:
-                          state === "COMPLETED" ? "darkGray" : "#a8a8a8",
-                        backgroundColor:
-                          state === "COMPLETED" ? "#d9d9d9" : "rgba(0,0,0,0)",
-                      },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.BtnText,
-                        {
-                          color: state === "COMPLETED" ? "darkGray" : "#a8a8a8",
-                        },
-                      ]}
-                    >
-                      완료
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => handleState("POLICE")}
-                    style={[
-                      styles.filterBtn,
-                      {
-                        borderColor:
-                          state === "POLICE" ? "darkGray" : "#a8a8a8",
-                        backgroundColor:
-                          state === "POLICE" ? "#d9d9d9" : "rgba(0,0,0,0)",
-                      },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.BtnText,
-                        {
-                          color: state === "POLICE" ? "darkGray" : "#a8a8a8",
-                        },
-                      ]}
-                    >
-                      인계됨
-                    </Text>
-                  </Pressable>
-                </View>
+                <CheckboxGrid
+                  items={STATUS_OPTIONS}
+                  selectedId={state}
+                  onToggle={(item) => handleState(item.id)}
+                />
               )}
             </View>
-            <View style={styles.tagWrap}>
-              {selectedCate ? (
-                <View key={selectedCate.id} style={styles.tag}>
-                  <Image
-                    source={require("../assets/check.png")}
-                    style={styles.checkImg}
-                  ></Image>
-                  <Text style={styles.tagText}>{selectedCate.name}</Text>
-                </View>
-              ) : null}
-              {selectedLocation ? (
-                <View key={selectedLocation.id} style={styles.tag}>
-                  <Image
-                    source={require("../assets/check.png")}
-                    style={styles.checkImg}
-                  ></Image>
-                  <Text style={styles.tagText}>{selectedLocation.name}</Text>
-                </View>
-              ) : null}
-              {state ? (
-                <View key={state} style={styles.tag}>
-                  <Image
-                    source={require("../assets/check.png")}
-                    style={styles.checkImg}
-                  ></Image>
-                  <Text style={styles.tagText}>{state}</Text>
-                </View>
-              ) : null}
-            </View>
+            {selectedTags.length > 0 && (
+              <View style={styles.tagWrap}>
+                {selectedTags.map((tag) => (
+                  <Pressable
+                    key={tag.key}
+                    onPress={tag.onRemove}
+                    style={styles.tag}
+                  >
+                    <Text style={styles.tagText}>{tag.name}</Text>
+                    <Text style={styles.tagRemove}>✕</Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
             {/* 검색 아이콘과 같은 goSearch로 이동해, 어느 쪽으로 넘어가도 같은 조건이 적용된다 */}
             <Pressable
               onPress={() => goSearch(keyword)}
@@ -452,10 +385,14 @@ const styles = StyleSheet.create({
   },
   filterResetBtn: {
     flexDirection: "row",
-    alignSelf: "flex-start",
+    alignSelf: "flex-end",
     alignItems: "center",
-    marginLeft: 22,
+    gap: 4,
+    marginRight: 22,
     padding: 4,
+  },
+  filterResetBtnPressed: {
+    opacity: 0.5,
   },
   resetImg: {
     width: 15,
@@ -469,11 +406,21 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   selectBtn: {
-    borderRadius: 25,
-    alignItems: "center",
-    textAlign: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 3,
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "#F1F3F7",
+  },
+  selectBtnActive: {
+    backgroundColor: "#2165A6",
+  },
+  selectBtnText: {
+    fontSize: 13,
+    color: "#6b7280",
+  },
+  selectBtnTextActive: {
+    color: "#ffffff",
+    fontWeight: "600",
   },
   BtnText: {
     fontSize: 13,
@@ -534,34 +481,28 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
-    paddingHorizontal: 25,
+    paddingHorizontal: 20,
+    paddingTop: 15,
   },
   tag: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#d9d9d9",
-    borderRadius: 10,
-    paddingVertical: 3,
-    paddingHorizontal: 8,
+    gap: 6,
+    backgroundColor: "#E8EFF7",
+    borderRadius: 14,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
   },
-  checkImg: {
-    width: 15,
-    height: 10,
-    marginRight: 5,
+  tagText: {
+    fontSize: 13,
+    color: "#2165A6",
+  },
+  tagRemove: {
+    fontSize: 11,
+    color: "#2165A6",
   },
   contentBottom: {
     backgroundColor: "#fff",
     paddingBottom: 10, // 하단 안전 여백 추가
-  },
-  filterBtn: {
-    borderWidth: 1,
-    borderRadius: 16,
-    borderColor: "#dbdbdb",
-    flexDirection: "row",
-    alignSelf: "flex-start",
-    alignItems: "center",
-    paddingVertical: 6,
-    paddingHorizontal: 13,
-    marginRight: 8,
   },
 });

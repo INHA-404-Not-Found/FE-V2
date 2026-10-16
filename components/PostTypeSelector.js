@@ -1,48 +1,29 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+const POST_TYPES = [
+  { id: "ALL", name: "전체" },
+  { id: "FIND", name: "습득" },
+  { id: "LOST", name: "분실" },
+];
+
 const PostTypeSelector = ({ postType, setPostType }) => {
   return (
     <View style={styles.postTypeSelector}>
-      <Pressable
-        style={[
-          styles.postTypeBtn,
-          {
-            borderBottomWidth: postType === "ALL" ? 1 : 0,
-            borderColor: "black",
-            borderStyle: "solid",
-          },
-        ]}
-        onPress={() => setPostType("ALL")}
-      >
-        <Text style={styles.BtnText}>전체</Text>
-      </Pressable>
-      <Pressable
-        style={[
-          styles.postTypeBtn,
-          {
-            borderBottomWidth: postType === "FIND" ? 1 : 0,
-            borderColor: "black",
-            borderStyle: "solid",
-          },
-        ]}
-        onPress={() => setPostType("FIND")}
-      >
-        <Text style={styles.BtnText}>습득</Text>
-      </Pressable>
-      <Pressable
-        style={[
-          styles.postTypeBtn,
-          {
-            borderBottomWidth: postType === "LOST" ? 1 : 0,
-            borderColor: "black",
-            borderStyle: "solid",
-          },
-        ]}
-        onPress={() => setPostType("LOST")}
-      >
-        <Text style={styles.BtnText}>분실</Text>
-      </Pressable>
+      {POST_TYPES.map((type) => {
+        const active = postType === type.id;
+        return (
+          <Pressable
+            key={type.id}
+            style={[styles.postTypeBtn, active && styles.postTypeBtnActive]}
+            onPress={() => setPostType(type.id)}
+          >
+            <Text style={[styles.BtnText, active && styles.BtnTextActive]}>
+              {type.name}
+            </Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 };
@@ -56,14 +37,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     justifyContent: "space-between",
   },
+  // 선택 안 된 탭도 같은 두께의 투명 밑줄을 둬서, 선택이 바뀔 때 글자가 들썩이지 않게 한다
   postTypeBtn: {
     alignItems: "center",
-    textAlign: "center",
     paddingHorizontal: 10,
-    paddingVertical: 0,
+    borderBottomWidth: 2,
+    borderColor: "transparent",
+  },
+  postTypeBtnActive: {
+    borderColor: "#2165A6",
   },
   BtnText: {
     paddingHorizontal: 15,
     paddingVertical: 8,
+    color: "#9ca3af",
+  },
+  BtnTextActive: {
+    color: "#2165A6",
+    fontWeight: "600",
   },
 });

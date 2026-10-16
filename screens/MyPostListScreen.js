@@ -22,6 +22,7 @@ import { getMyPosts, removePost } from "../api/post";
 import DefaultHeader from "../components/DefaultHeader";
 import MyPostListItem from "../components/MyPostListItem";
 import PostTypeSelector from "../components/PostTypeSelector";
+import { STATUS_OPTIONS } from "../constants/postStatus";
 
 const MyPostListScreen = () => {
   const myInfo = useSelector((state) => state.my.info);
@@ -140,70 +141,25 @@ const MyPostListScreen = () => {
           <PostTypeSelector postType={postType} setPostType={setPostType} />
 
           <View style={[styles.filterBtnContent]}>
-            <Pressable
-              onPress={() => handleState("UNCOMPLETED")}
-              style={[
-                styles.filterBtn,
-                {
-                  borderColor: state === "UNCOMPLETED" ? "darkGray" : "#a8a8a8",
-                  backgroundColor:
-                    state === "UNCOMPLETED" ? "#d9d9d9" : "rgba(0,0,0,0)",
-                },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.BtnText,
-                  {
-                    color: state === "UNCOMPLETED" ? "darkGray" : "#a8a8a8",
-                  },
-                ]}
-              >
-                미완료
-              </Text>
-            </Pressable>
-            <Pressable
-              onPress={() => handleState("COMPLETED")}
-              style={[
-                styles.filterBtn,
-                {
-                  borderColor: state === "COMPLETED" ? "darkGray" : "#a8a8a8",
-                  backgroundColor: state === "COMPLETED" ? "#d9d9d9" : "white",
-                },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.BtnText,
-                  {
-                    color: state === "COMPLETED" ? "darkGray" : "#a8a8a8",
-                  },
-                ]}
-              >
-                완료
-              </Text>
-            </Pressable>
-            <Pressable
-              onPress={() => handleState("POLICE")}
-              style={[
-                styles.filterBtn,
-                {
-                  borderColor: state === "POLICE" ? "darkGray" : "#a8a8a8",
-                  backgroundColor: state === "POLICE" ? "#d9d9d9" : "white",
-                },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.BtnText,
-                  {
-                    color: state === "POLICE" ? "darkGray" : "#a8a8a8",
-                  },
-                ]}
-              >
-                인계됨
-              </Text>
-            </Pressable>
+            {STATUS_OPTIONS.map((option) => {
+              const active = state === option.id;
+              return (
+                <Pressable
+                  key={option.id}
+                  onPress={() => handleState(option.id)}
+                  style={[styles.filterBtn, active && styles.filterBtnActive]}
+                >
+                  <Text
+                    style={[
+                      styles.filterBtnText,
+                      active && styles.filterBtnTextActive,
+                    ]}
+                  >
+                    {option.name}
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
 
           <FlatList
@@ -394,16 +350,25 @@ const styles = StyleSheet.create({
     paddingLeft: 13,
     marginRight: 8,
   },
+  // 홈·게시글 목록 필터와 같은 칩: 선택 시 파란 배경, 아니면 연회색 배경
   filterBtn: {
-    borderWidth: 1,
+    height: 32,
     borderRadius: 16,
-    borderColor: "#dbdbdb",
+    backgroundColor: "#F1F3F7",
     flexDirection: "row",
-    alignSelf: "flex-start",
     alignItems: "center",
-    paddingVertical: 6,
-    paddingHorizontal: 13,
-    marginRight: 8,
+    paddingHorizontal: 12,
+  },
+  filterBtnActive: {
+    backgroundColor: "#2165A6",
+  },
+  filterBtnText: {
+    fontSize: 13,
+    color: "#6b7280",
+  },
+  filterBtnTextActive: {
+    color: "#ffffff",
+    fontWeight: "600",
   },
   filterDownImg: {
     width: 20,
@@ -417,6 +382,7 @@ const styles = StyleSheet.create({
   filterBtnContent: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 6,
     marginBottom: 5,
   },
   dropdownMenu: {

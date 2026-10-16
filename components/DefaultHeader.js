@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 21,
     fontWeight: "700",
-    color: "#1C63B7",
+    color: "#215294",
   },
   headerImg: {
     width: 25,

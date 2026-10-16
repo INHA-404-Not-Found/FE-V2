@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     borderColor: "transparent",
   },
   postTypeBtnActive: {
-    borderColor: "#2165A6",
+    borderColor: "#215294",
   },
   BtnText: {
     paddingHorizontal: 15,
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     color: "#9ca3af",
   },
   BtnTextActive: {
-    color: "#2165A6",
+    color: "#215294",
     fontWeight: "600",
   },
 });

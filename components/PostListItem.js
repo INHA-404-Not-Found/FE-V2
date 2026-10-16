@@ -1,7 +1,8 @@
 import { useNavigation } from "@react-navigation/native";
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { toImageSource } from "../utils/imageSource";
+import { DEFAULT_IMAGE, toImageSource } from "../utils/imageSource";
+import PostImagePlaceholder from "./PostImagePlaceholder";
 import { DateFormat } from "../utils/DateFormat";
 
 // postIds: 목록에서 들어올 때만 넘겨 상세 화면에 이전/다음 버튼을 띄운다
@@ -15,7 +16,11 @@ const PostListItem = ({ post, postIds }) => {
         )}>
       <View style={styles.postContainer}>
         <View style={styles.postImgWrapper}>
-          <Image source={imageSource} style={styles.postImg} />
+          {imageSource === DEFAULT_IMAGE ? (
+            <PostImagePlaceholder />
+          ) : (
+            <Image source={imageSource} style={styles.postImg} />
+          )}
         </View>
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>

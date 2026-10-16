@@ -2,7 +2,8 @@ import { useNavigation } from "@react-navigation/native";
 import React, { useRef } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { DateFormat } from "../utils/DateFormat";
-import { toImageSource } from "../utils/imageSource";
+import { DEFAULT_IMAGE, toImageSource } from "../utils/imageSource";
+import PostImagePlaceholder from "./PostImagePlaceholder";
 
 const MyPostListItem = ({ post, handleMenuPress, menuOpen }) => {
   const navigation = useNavigation();
@@ -22,7 +23,11 @@ const MyPostListItem = ({ post, handleMenuPress, menuOpen }) => {
         style={[styles.postContainer, menuOpen && styles.postContainerActive]}
       >
         <View style={styles.postImgWrapper}>
-          <Image source={imageSource} style={styles.postImg}></Image>
+          {imageSource === DEFAULT_IMAGE ? (
+            <PostImagePlaceholder />
+          ) : (
+            <Image source={imageSource} style={styles.postImg} />
+          )}
         </View>
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>

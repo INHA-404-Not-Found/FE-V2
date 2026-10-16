@@ -15,8 +15,9 @@ import api from "../api/api";
 import DefaultHeader from "../components/DefaultHeader";
 import FormBottomBar from "../components/FormBottomBar";
 import FormField, {
-  formStyles,
   PLACEHOLDER_COLOR,
+  dropdownSelectedProps,
+  formStyles,
 } from "../components/FormField";
 import { TokenStore } from "../TokenStore";
 import PhotoPickerField from "../components/PhotoPickerField";
@@ -223,6 +224,7 @@ const AddLostPostScreen = () => {
               min={0}
               max={5}
               placeholder="카테고리를 선택하세요"
+              {...dropdownSelectedProps}
               placeholderStyle={formStyles.dropdownPlaceholder}
               mode="BADGE"
               style={formStyles.dropdown}

@@ -10,8 +10,9 @@ import { useSelector } from "react-redux";
 import DefaultHeader from "../components/DefaultHeader";
 import FormBottomBar from "../components/FormBottomBar";
 import FormField, {
-  formStyles,
   PLACEHOLDER_COLOR,
+  dropdownSelectedProps,
+  formStyles,
 } from "../components/FormField";
 import LocationSelectField from "../components/LocationSelectField";
 import PhotoPickerField from "../components/PhotoPickerField";
@@ -330,6 +331,7 @@ const EditPostScreen = ({ route }) => {
                 min={0}
                 max={5}
                 placeholder="카테고리를 선택하세요"
+                {...dropdownSelectedProps}
                 placeholderStyle={formStyles.dropdownPlaceholder}
                 mode="BADGE"
                 style={formStyles.dropdown}

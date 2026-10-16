@@ -17,6 +17,23 @@ const FormField = ({ label, required, children }) => (
 
 export default FormField;
 
+// 드롭다운에서 선택된 항목 오른쪽 표시: 홈 필터 체크박스와 같은 파란 체크
+const CheckedTick = () => (
+  <View style={styles.tick}>
+    <Text style={styles.tickText}>✓</Text>
+  </View>
+);
+
+// 드롭다운 선택 표시(배지·선택 항목)를 홈 필터의 선택 태그/체크박스와 맞추는 공용 props
+export const dropdownSelectedProps = {
+  showBadgeDot: false,
+  badgeColors: "#E8EFF7",
+  badgeStyle: { borderRadius: 14, paddingHorizontal: 10, paddingVertical: 5 },
+  badgeTextStyle: { color: "#2165A6", fontSize: 13 },
+  selectedItemLabelStyle: { color: "#2165A6", fontWeight: "600" },
+  TickIconComponent: CheckedTick,
+};
+
 // 폼 입력 요소 공용 스타일
 export const formStyles = StyleSheet.create({
   input: {
@@ -59,6 +76,19 @@ export const formStyles = StyleSheet.create({
 });
 
 const styles = StyleSheet.create({
+  tick: {
+    width: 18,
+    height: 18,
+    borderRadius: 3,
+    backgroundColor: "#2165A6",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tickText: {
+    color: "#ffffff",
+    fontSize: 12,
+    fontWeight: "700",
+  },
   field: {
     flexDirection: "row",
     alignItems: "flex-start",

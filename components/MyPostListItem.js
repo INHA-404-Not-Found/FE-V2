@@ -115,15 +115,17 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: "hidden",
     backgroundColor: "#DADEE7",
-    borderWidth: 1.5,
-    borderColor: "#DADEE7",
+    // 진한 그림자가 목록에서 튀어 보여, 연한 테두리 + 옅은 그림자로 둔다
+    borderWidth: 1,
+    borderColor: "#E3E7EE",
     justifyContent: "center",
     alignItems: "center",
 
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 3,
-    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
+    elevation: 1,
   },
   postImg: {
     width: "100%",

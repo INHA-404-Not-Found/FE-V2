@@ -37,6 +37,7 @@ import PostTypeSelector from "../components/PostTypeSelector";
 import RecentSearchList from "../components/RecentSearchList";
 import SearchHeader from "../components/SearchHeader";
 import { setKeyword } from "../Redux/slices/keywordSlice";
+import { STATUS_OPTIONS } from "../constants/postStatus";
 import { addRecentSearch } from "../utils/recentSearchStorage";
 const PostListScreen = ({ route }) => {
   const {
@@ -235,132 +236,88 @@ const PostListScreen = ({ route }) => {
 
           <View style={styles.listContainer}>
             <PostTypeSelector postType={postType} setPostType={setPostType} />
-            <View>
-              <Pressable onPress={resetFilter} style={[styles.filterResetBtn]}>
-                <Image
-                  source={require("../assets/filterReset.png")}
-                  style={styles.resetImg}
-                ></Image>
-                <Text style={[styles.BtnText, { color: "#a8a8a8" }]}>
-                  필터 초기화
-                </Text>
-              </Pressable>
-            </View>
+            <Pressable
+              onPress={resetFilter}
+              style={({ pressed }) => [
+                styles.filterResetBtn,
+                pressed && styles.filterResetBtnPressed,
+              ]}
+            >
+              <Image
+                source={require("../assets/filterReset.png")}
+                style={styles.resetImg}
+              ></Image>
+              <Text style={[styles.BtnText, { color: "#a8a8a8" }]}>
+                필터 초기화
+              </Text>
+            </Pressable>
             {/* 한 줄에 다 안 들어가면 다음 줄로 넘긴다 */}
             <View style={styles.filterBtnContainer}>
               <Pressable
                 onPress={handleCategoryModalPress}
                 style={[
                   styles.filterDownBtn,
-                  {
-                    borderColor: category ? "darkGray" : "#a8a8a8",
-                    backgroundColor: category ? "#d9d9d9" : "rgba(0,0,0,0)",
-                  },
+                  category && styles.filterBtnActive,
                 ]}
               >
                 <Text
                   style={[
-                    styles.BtnText,
-                    { color: category ? "darkGray" : "#a8a8a8" },
+                    styles.filterBtnText,
+                    category && styles.filterBtnTextActive,
                   ]}
                 >
                   {category ? category.name : "카테고리"}
                 </Text>
                 <Image
                   source={require("../assets/downArrow.png")}
-                  style={styles.filterDownImg}
+                  style={[
+                    styles.filterDownImg,
+                    category && styles.filterDownImgActive,
+                  ]}
                 ></Image>
               </Pressable>
               <Pressable
                 onPress={handleLocationModalPress}
                 style={[
                   styles.filterDownBtn,
-                  {
-                    borderColor: location ? "darkGray" : "#a8a8a8",
-                    backgroundColor: location ? "#d9d9d9" : "rgba(0,0,0,0)",
-                  },
+                  location && styles.filterBtnActive,
                 ]}
               >
                 <Text
                   style={[
-                    styles.BtnText,
-                    { color: location ? "darkGray" : "#a8a8a8" },
+                    styles.filterBtnText,
+                    location && styles.filterBtnTextActive,
                   ]}
                 >
                   {location ? location.name : "위치"}
                 </Text>
                 <Image
                   source={require("../assets/downArrow.png")}
-                  style={styles.filterDownImg}
+                  style={[
+                    styles.filterDownImg,
+                    location && styles.filterDownImgActive,
+                  ]}
                 ></Image>
               </Pressable>
-              <Pressable
-                onPress={() => handleState("UNCOMPLETED")}
-                style={[
-                  styles.filterBtn,
-                  {
-                    borderColor:
-                      state === "UNCOMPLETED" ? "darkGray" : "#a8a8a8",
-                    backgroundColor:
-                      state === "UNCOMPLETED" ? "#d9d9d9" : "rgba(0,0,0,0)",
-                  },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.BtnText,
-                    {
-                      color: state === "UNCOMPLETED" ? "darkGray" : "#a8a8a8",
-                    },
-                  ]}
-                >
-                  미완료
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => handleState("COMPLETED")}
-                style={[
-                  styles.filterBtn,
-                  {
-                    borderColor: state === "COMPLETED" ? "darkGray" : "#a8a8a8",
-                    backgroundColor:
-                      state === "COMPLETED" ? "#d9d9d9" : "rgba(0,0,0,0)",
-                  },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.BtnText,
-                    {
-                      color: state === "COMPLETED" ? "darkGray" : "#a8a8a8",
-                    },
-                  ]}
-                >
-                  완료
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => handleState("POLICE")}
-                style={[
-                  styles.filterBtn,
-                  {
-                    borderColor: state === "POLICE" ? "darkGray" : "#a8a8a8",
-                    backgroundColor:
-                      state === "POLICE" ? "#d9d9d9" : "rgba(0,0,0,0)",
-                  },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.BtnText,
-                    {
-                      color: state === "POLICE" ? "darkGray" : "#a8a8a8",
-                    },
-                  ]}
-                >
-                  인계됨
-                </Text>
-              </Pressable>
+              {STATUS_OPTIONS.map((option) => {
+                const active = state === option.id;
+                return (
+                  <Pressable
+                    key={option.id}
+                    onPress={() => handleState(option.id)}
+                    style={[styles.filterBtn, active && styles.filterBtnActive]}
+                  >
+                    <Text
+                      style={[
+                        styles.filterBtnText,
+                        active && styles.filterBtnTextActive,
+                      ]}
+                    >
+                      {option.name}
+                    </Text>
+                  </Pressable>
+                );
+              })}
             </View>
             <FlatList
               data={posts}
@@ -429,19 +386,23 @@ const styles = StyleSheet.create({
   },
   filterResetBtn: {
     flexDirection: "row",
-    alignSelf: "flex-start",
+    alignSelf: "flex-end",
     alignItems: "center",
+    gap: 4,
     padding: 4,
+  },
+  filterResetBtnPressed: {
+    opacity: 0.5,
   },
   resetImg: {
     width: 15,
     height: 15,
   },
+  // 홈 필터 탭과 같은 칩: 선택 시 파란 배경, 아니면 연회색 배경
   filterDownBtn: {
     height: 32,
-    borderWidth: 1,
     borderRadius: 16,
-    borderColor: "#dbdbdb",
+    backgroundColor: "#F1F3F7",
     flexDirection: "row",
     alignItems: "center",
     paddingLeft: 12,
@@ -449,18 +410,31 @@ const styles = StyleSheet.create({
   },
   filterBtn: {
     height: 32,
-    borderWidth: 1,
     borderRadius: 16,
-    borderColor: "#dbdbdb",
+    backgroundColor: "#F1F3F7",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 12,
+  },
+  filterBtnActive: {
+    backgroundColor: "#2165A6",
+  },
+  filterBtnText: {
+    fontSize: 13,
+    color: "#6b7280",
+  },
+  filterBtnTextActive: {
+    color: "#ffffff",
+    fontWeight: "600",
   },
   filterDownImg: {
     width: 14,
     height: 18,
     marginLeft: 2,
     resizeMode: "contain",
+  },
+  filterDownImgActive: {
+    tintColor: "#ffffff",
   },
   filterBtnContainer: {
     flexDirection: "row",

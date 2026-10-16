@@ -29,6 +29,7 @@ import DefaultHeader from "../components/DefaultHeader";
 import LocationViewBox from "../components/LocationViewBox";
 import PostTypeSelector from "../components/PostTypeSelector";
 import RecentSearchChips from "../components/RecentSearchChips";
+import { STATUS_LABELS, STATUS_OPTIONS } from "../constants/postStatus";
 import { setKeyword } from "../Redux/slices/keywordSlice";
 import { addRecentSearch } from "../utils/recentSearchStorage";
 const FILTER_TABS = [
@@ -36,15 +37,6 @@ const FILTER_TABS = [
   { id: "location", name: "습득/분실 위치" },
   { id: "status", name: "완료 여부" },
 ];
-const STATUS_OPTIONS = [
-  { id: "UNCOMPLETED", name: "미완료" },
-  { id: "COMPLETED", name: "완료" },
-  { id: "POLICE", name: "인계됨" },
-];
-const STATUS_LABELS = Object.fromEntries(
-  STATUS_OPTIONS.map((o) => [o.id, o.name]),
-);
-
 const MainScreen = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();

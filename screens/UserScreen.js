@@ -17,11 +17,16 @@ import { useAuth } from "../hooks/useAuth";
 import { usePushSetting } from "../hooks/usePushSetting";
 
 // 설정 목록 한 줄: 왼쪽 라벨 + 오른쪽 값 (onPress가 있으면 > 표시, right가 있으면 그걸 표시)
-const SettingRow = ({ label, value, onPress, right }) => (
+// divider: 같은 카드 안에서 위 줄과 구분선을 둘 때
+const SettingRow = ({ label, value, onPress, right, divider }) => (
   <Pressable
     onPress={onPress}
     disabled={!onPress}
-    style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+    style={({ pressed }) => [
+      styles.row,
+      divider && styles.rowDivider,
+      pressed && styles.rowPressed,
+    ]}
   >
     <Text style={styles.rowLabel}>{label}</Text>
     {value != null && <Text style={styles.rowValue}>{value}</Text>}
@@ -45,9 +50,14 @@ const UserScreen = () => {
         <Text style={styles.sectionTitle}>계정</Text>
         <View style={styles.card}>
           <SettingRow label="이메일" value={myInfo?.email ?? "-"} />
-          <SettingRow label="학번" value={myInfo?.studentId ?? "-"} />
+          <SettingRow
+            label="학번"
+            value={myInfo?.studentId ?? "-"}
+            divider
+          />
           <SettingRow
             label="이메일 변경"
+            divider
             onPress={() => alert("이메일 변경은 준비 중입니다.")}
           />
         </View>
@@ -123,7 +133,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     fontSize: 13,
     fontWeight: "600",
-    color: "#a8a8a8",
+    color: "#9ca3af",
   },
   // 게시글 상세(PostScreen)의 contentCard와 같은 카드 스타일
   card: {
@@ -143,6 +153,11 @@ const styles = StyleSheet.create({
     minHeight: 52,
     paddingHorizontal: 16,
   },
+  // 다른 화면의 연한 구분선과 같은 톤
+  rowDivider: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: "#EEF0F4",
+  },
   rowPressed: {
     backgroundColor: "#f2f6ff",
   },
@@ -158,12 +173,12 @@ const styles = StyleSheet.create({
   chevron: {
     width: 16,
     height: 16,
-    tintColor: "#a8a8a8",
+    tintColor: "#9ca3af",
     transform: [{ rotate: "180deg" }],
   },
   logoutText: {
     fontSize: 15,
-    color: "#fe2828",
+    color: "#DC2626",
   },
   loginText: {
     fontSize: 15,

@@ -383,6 +383,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
+    marginTop: 8,
     marginBottom: 5,
   },
   dropdownMenu: {

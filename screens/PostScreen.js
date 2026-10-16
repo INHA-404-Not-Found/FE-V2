@@ -54,20 +54,22 @@ const PostScreen = ({ route, navigation }) => {
     setCurrentIndex(index);
   };
 
+  const hasImages = Array.isArray(post.imagePath) && post.imagePath.length > 0;
+
   return (
     <SafeAreaView style={styles.safe} edge={["top"]}>
       <DefaultHeader />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* 이미지 슬라이드 */}
-        <View style={styles.imageCard}>
-          <ScrollView
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onScroll={handleScroll}
-          >
-            {Array.isArray(post.imagePath) && post.imagePath.length > 0 ? (
-              post.imagePath.map((img, index) => {
+        {/* 이미지 슬라이드: 이미지가 없으면 영역 자체를 그리지 않는다 */}
+        {hasImages && (
+          <View style={styles.imageCard}>
+            <ScrollView
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onScroll={handleScroll}
+            >
+              {post.imagePath.map((img, index) => {
                 const fullUri = toImageUri(img);
                 return (
                   <Pressable
@@ -84,23 +86,19 @@ const PostScreen = ({ route, navigation }) => {
                     />
                   </Pressable>
                 );
-              })
-            ) : (
-              <View style={[styles.UploadedImg, styles.noImageBox]}>
-                <Text style={styles.noImageText}>이미지가 없습니다</Text>
+              })}
+            </ScrollView>
+
+            {/* 하단 이미지 갯수 표시 */}
+            {post.imagePath.length > 1 && (
+              <View style={styles.imageCountBox}>
+                <Text style={styles.imageCountText}>
+                  {currentIndex + 1}/{post.imagePath.length}
+                </Text>
               </View>
             )}
-          </ScrollView>
-
-          {/* 하단 이미지 갯수 표시 */}
-          {Array.isArray(post.imagePath) && post.imagePath.length > 1 && (
-            <View style={styles.imageCountBox}>
-              <Text style={styles.imageCountText}>
-                {currentIndex + 1}/{post.imagePath.length}
-              </Text>
-            </View>
-          )}
-        </View>
+          </View>
+        )}
 
         {/* 사진 크게 보는 화면 */}
         <Modal visible={modalVisible} transparent={true}>
@@ -219,21 +217,6 @@ const styles = StyleSheet.create({
   UploadedImg: {
     height: 380,
     backgroundColor: "#E5E7EB",
-  },
-  noImageBox: {
-    alignItems: "center",
-    justifyContent: "center",
-    height: 380,
-    width: 400,
-    backgroundColor: "#F3F4F6",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-  noImageText: {
-    color: "#9CA3AF",
-    fontSize: 16,
-    fontWeight: "500",
   },
   imageCountBox: {
     position: "absolute",

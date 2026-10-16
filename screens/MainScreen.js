@@ -335,19 +335,17 @@ const styles = StyleSheet.create({
   contentTop: {
     flexGrow: 1,
     flexDirection: "column",
-    alignItems: "center",
-    padding: 25,
+    // 고정 폭(345) 가운데 정렬이면 큰 화면에선 좌우가 넓고 작은 화면에선 넘쳐서, 화면 폭에 맞춰 늘리고 좌우 여백만 둔다
+    padding: 22,
     backgroundColor: "#DADEE7",
   },
   // 위아래 간격을 16으로 맞춤 (selectView의 marginTop 25에서 9를 상쇄)
   // 최근 검색어가 없으면 칩이 렌더링되지 않아 검색창-필터 간격은 원래대로 25
   recentChips: {
-    width: 345,
     marginTop: 16,
     marginBottom: -9,
   },
   searchBar: {
-    width: 345,
     height: 56,
     borderRadius: 28,
     backgroundColor: "#215294",
@@ -362,10 +360,9 @@ const styles = StyleSheet.create({
   textInput: {
     color: "#fff",
     marginLeft: 20,
-    width: 265,
+    flex: 1,
   },
   selectView: {
-    width: 345,
     height: "content",
     backgroundColor: "#ffffff",
     borderRadius: 10,

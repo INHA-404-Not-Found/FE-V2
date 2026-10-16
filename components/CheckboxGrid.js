@@ -17,7 +17,7 @@ const CheckboxGrid = ({ items, selectedId, onToggle }) => {
             >
               <Checkbox
                 value={checked}
-                color={checked ? "#215294" : "#c4c4c4"}
+                color={checked ? "#2165A6" : "#c4c4c4"}
                 style={styles.checkbox}
                 onValueChange={() => onToggle(item)}
               />

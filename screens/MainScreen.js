@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
   searchBar: {
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#215294",
+    backgroundColor: "#2165A6",
     flexDirection: "row",
   },
   barImg: {
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F1F3F7",
   },
   selectBtnActive: {
-    backgroundColor: "#215294",
+    backgroundColor: "#2165A6",
   },
   selectBtnText: {
     fontSize: 13,
@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     height: 48,
     borderRadius: 10,
-    backgroundColor: "#215294",
+    backgroundColor: "#2165A6",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -484,11 +484,11 @@ const styles = StyleSheet.create({
   },
   tagText: {
     fontSize: 13,
-    color: "#215294",
+    color: "#2165A6",
   },
   tagRemove: {
     fontSize: 11,
-    color: "#215294",
+    color: "#2165A6",
   },
   contentBottom: {
     backgroundColor: "#fff",

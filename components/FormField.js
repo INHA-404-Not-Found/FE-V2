@@ -29,8 +29,8 @@ export const dropdownSelectedProps = {
   showBadgeDot: false,
   badgeColors: "#E8EFF7",
   badgeStyle: { borderRadius: 14, paddingHorizontal: 10, paddingVertical: 5 },
-  badgeTextStyle: { color: "#215294", fontSize: 13 },
-  selectedItemLabelStyle: { color: "#215294", fontWeight: "600" },
+  badgeTextStyle: { color: "#2165A6", fontSize: 13 },
+  selectedItemLabelStyle: { color: "#2165A6", fontWeight: "600" },
   TickIconComponent: CheckedTick,
 };
 
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 3,
-    backgroundColor: "#215294",
+    backgroundColor: "#2165A6",
     alignItems: "center",
     justifyContent: "center",
   },

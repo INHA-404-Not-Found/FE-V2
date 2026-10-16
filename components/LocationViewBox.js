@@ -102,10 +102,10 @@ const LocationViewBox = ({ selected, setSelected }) => {
                     d={z.d}
                     fill={
                       z.id === selected?.id
-                        ? "rgba(33,82,148,0.5)"
-                        : "rgba(33,82,148,0.01)"
+                        ? "rgba(33,101,166,0.5)"
+                        : "rgba(33,101,166,0.01)"
                     }
-                    stroke="#215294"
+                    stroke="#2165A6"
                     strokeWidth={z.id === selected?.id ? 2 : 0}
                     vectorEffect="non-scaling-stroke"
                   />

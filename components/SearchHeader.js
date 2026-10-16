@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 21,
     fontWeight: "700",
-    color: "#215294",
+    color: "#2165A6",
   },
   headerImg: {
     width: 25,

@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   filterBtnActive: {
-    backgroundColor: "#215294",
+    backgroundColor: "#2165A6",
   },
   filterBtnText: {
     fontSize: 13,
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   },
   bottomModalSubmitBtn: {
     borderRadius: 10,
-    backgroundColor: "#215294",
+    backgroundColor: "#2165A6",
     padding: 10,
     flex: 8,
     alignItems: "center",
@@ -473,7 +473,7 @@ const styles = StyleSheet.create({
   },
   modalSubmitBtn: {
     borderRadius: 10,
-    backgroundColor: "#215294",
+    backgroundColor: "#2165A6",
     paddingVertical: 13,
     alignItems: "center",
     flex: 1,
